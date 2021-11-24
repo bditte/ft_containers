@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2021/11/24 12:53:12 by bditte           ###   ########.fr       */
+/*   Updated: 2021/11/24 14:37:58 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define VECTOR_HPP
 
 # include <iostream>
-
+# include <stdlib.h>
 namespace ft 
 {
     template <class T, class Alloc = std::allocator<T> > 
@@ -38,21 +38,13 @@ namespace ft
 		iterator 		begin() { vector::iterator res = this->_array; return (res); };
 		const iterator	begin() const;*/
 		/* Constructors */
-        explicit vector(const allocator_type& alloc = allocator_type()): _size(0), _capacity(0)
-        {
-            this->_allocator = alloc;
-            try 
-            { 
-                this->_array = this->get_allocator().allocate(0); 
-            }
-            catch (std::exception& e)
-            {
-                throw e;
-            }
-        }
+        explicit vector(const allocator_type& alloc = allocator_type()): _array(NULL), _size(0), _capacity(0), _allocator(alloc) {};
         explicit vector(size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type()): _size(n), _capacity(n)
         {
-            this->_allocator = alloc;
+			this->_allocator = alloc;
+			this->_array = NULL;
+			if (n == 0)
+				return ;
             try 
             {
                 this->_array = this->_allocator.allocate(n); 
@@ -122,7 +114,7 @@ namespace ft
                 		this->get_allocator().construct(res + i, this->_array[i]);
 					for (size_type i = this->_size; i < n; i++)
 						res[i] = val;
-					this->_allocator.deallocate(this->_array, 5);
+					this->_allocator.deallocate(this->_array, this->capacity);
 					this->_array = res;
 					this->_size = n;
 					this->_capacity = n;
@@ -147,7 +139,7 @@ namespace ft
 				res = this->_allocator.allocate(n);
 				for (size_type i = 0; i < this->_size; i++)
 					this->get_allocator().construct(res + i, this->_array[i]);
-				this->_allocator.deallocate(this->_array, 5);
+				this->_allocator.deallocate(this->_array, this->_capacity);
 				this->_array = res;
 				this->_capacity = n;
 			}
@@ -161,7 +153,59 @@ namespace ft
 		/* Element access */
 		reference		operator[](size_type n) {return (this->_array[n]); };
 		const_reference	operator[](size_type n) const { return (this->_array[n]); };
-        /* Allocator */
+        /*
+		* NEED TO ADD CORRECT MESSAGE
+		*/
+		reference		at(size_type n)
+		{
+			if (n > this->_size || !this->_size)
+				throw std::out_of_range("std::at");
+			return (this->_array[n]);
+		}
+		const_reference	at(size_type n) const
+		{
+			if (n > this->_size || !this->_size)
+				throw std::out_of_range("std::at");
+			return (this->_array[n]);
+		}
+		reference			front(void) { return (*this->_array); };
+		const_reference		front(void) const { return (*this->_array); };
+		reference			back(void) { return (this->_array[this->_size - 1]); };
+		const_reference		back(void) const { return (this->_array[this->_size - 1]); };
+		value_type*			data(void) { return (this->_array); };
+		const value_type*	data(void) const { return (this->_array); };
+
+		/* Modifiers */
+		//template <class InputIterator>
+  		//void assign (InputIterator first, InputIterator last);
+		void assign (size_type n, const value_type& val)
+		{
+			if (n <= this->_capacity)
+			{
+				for (size_type i = 0; i < n; i++)
+					this->_array[i] = val;
+				this->_size = n;
+			}
+			else
+			{
+				T* res;
+				try
+				{
+					res = this->_allocator.allocate(n);
+					for (size_type i = 0; i < n; i++)
+						this->get_allocator().construct(res + i, val);
+					this->_allocator.deallocate(this->_array, this->_capacity);
+					this->_array = res;
+					this->_capacity = n;
+					this->_size = n;
+				}
+				catch (const std::exception& e)
+				{
+					throw e;
+				}
+			}
+		}
+		/* Allocator */
 		allocator_type get_allocator() const { return (this->_allocator); };
 
         private:
