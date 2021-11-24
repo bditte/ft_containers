@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2021/11/23 15:44:14 by bditte           ###   ########.fr       */
+/*   Updated: 2021/11/24 12:53:12 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,23 @@ namespace ft
     {
         public:
 
-        typedef T                                   value_type;
-        typedef Alloc                               allocator_type;
-        typedef value_type&                         reference;
-        typedef const value_type&                   const_reference;
-        typedef typename Alloc::pointer             pointer;
-        typedef typename Alloc::const_pointer       const_pointer;
-        typedef std::size_t                         size_type;
-        typedef std::ptrdiff_t                      difference_type;
-        /*  
-        * Need to add iterator typedefs
-        */
-        explicit vector(const allocator_type& alloc = allocator_type()): _size(0)
+        typedef T                                   						value_type;
+        typedef Alloc                               						allocator_type;
+        typedef value_type&                         						reference;
+        typedef const value_type&                   						const_reference;
+        typedef typename Alloc::pointer             						pointer;
+        typedef typename Alloc::const_pointer       						const_pointer;
+        typedef std::size_t                         						size_type;
+		typedef std::ptrdiff_t                      						difference_type;
+        typedef	std::iterator<std::random_access_iterator_tag, T>			iterator;
+		typedef	const std::iterator<std::random_access_iterator_tag, T>		const_iterator;
+		typedef std::reverse_iterator<iterator>								reverse_iterator;
+		typedef const std::reverse_iterator<const_iterator>						const_reverse_iterator;
+	/*
+		iterator 		begin() { vector::iterator res = this->_array; return (res); };
+		const iterator	begin() const;*/
+		/* Constructors */
+        explicit vector(const allocator_type& alloc = allocator_type()): _size(0), _capacity(0)
         {
             this->_allocator = alloc;
             try 
@@ -45,21 +50,21 @@ namespace ft
                 throw e;
             }
         }
-        explicit vector(size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type()): _size(n)
+        explicit vector(size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type()): _size(n), _capacity(n)
         {
             this->_allocator = alloc;
             try 
             {
-                this->_array = this->get_allocator().allocate(n); 
+                this->_array = this->_allocator.allocate(n); 
             }
             catch (std::exception& e)
             {
                 throw e;
             }
             for (size_type i = 0; i < n; i++)
-                this->get_allocator().construct(this->_array + i, val);       
+                this->_allocator.construct(this->_array + i, val);  
         }
-        template <class InputIterator, class = typename std::enable_if<std::is_integral<InputIterator>::value>::type>
+       /* template <class InputIterator, class = typename std::enable_if<std::is_integral<InputIterator>::value>::type>
         vector(InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type())
         {
             InputIterator   begin = first;
@@ -79,16 +84,92 @@ namespace ft
             for (int i = 0; i < size; i++)
                 this->get_allocator().construct(this->_array + i, first++);
             this->_size = size;
+			this->_capacity = size;
+        }*/
+        vector(const vector& x)
+        {
+            this->_size = x.size();
+            this->_allocator = x.get_allocator();
+			this->_capacity = x.capacity();
+			try 
+            {
+                this->_array = this->get_allocator().allocate(x.capacity()); 
+            }
+            catch (std::exception& e)
+            {
+                throw e;
+            }
+			for (size_type i = 0; i < this->_size; i++)
+				this->_array[i] = x._array[i];
         }
-        size_t size(void) const { return (this->_size); };
+		/* Destructor */
+		~vector() { this->_allocator.deallocate(this->_array, this->_capacity); };
+		/* Capacity */
+        size_type	size(void) const { return (this->_size); };
+		size_type 	max_size() const { return (this->get_allocator().max_size()); };
+		void		resize(size_type n, value_type val = value_type())
+		{
+			T*	res;
 
-        allocator_type get_allocator() const { return (this->_allocator); };
+			if (n <= this->_size)
+				this->_size -= this->_size - n;
+			else
+			{
+				try
+				{
+					res = this->_allocator.allocate(n);
+					for (size_type i = 0; i < this->_size; i++)
+                		this->get_allocator().construct(res + i, this->_array[i]);
+					for (size_type i = this->_size; i < n; i++)
+						res[i] = val;
+					this->_allocator.deallocate(this->_array, 5);
+					this->_array = res;
+					this->_size = n;
+					this->_capacity = n;
+				}
+				catch (const std::exception& e)
+				{
+					throw e;
+				}
+			}
+		}
+		size_type	capacity(void) const { return (this->_capacity); };
+		void		reserve(size_type n)
+		{
+			T*	res;
+
+			if (n <= this->_capacity)
+				return ;
+			if (n > this->max_size())
+				throw std::length_error("vector::reserve");
+			try
+			{
+				res = this->_allocator.allocate(n);
+				for (size_type i = 0; i < this->_size; i++)
+					this->get_allocator().construct(res + i, this->_array[i]);
+				this->_allocator.deallocate(this->_array, 5);
+				this->_array = res;
+				this->_capacity = n;
+			}
+			catch (const std::exception& e)
+			{
+				throw e;
+			}
+		}
+		bool		empty(void)	const { if (this->_size == 0) {return (true);} return (false); };
+		
+		/* Element access */
+		reference		operator[](size_type n) {return (this->_array[n]); };
+		const_reference	operator[](size_type n) const { return (this->_array[n]); };
+        /* Allocator */
+		allocator_type get_allocator() const { return (this->_allocator); };
 
         private:
         
-        T*              _array;
-        size_t          _size;
-        allocator_type  _allocator;
+        T*					_array;
+        size_type			_size;
+        size_type			_capacity;
+        allocator_type		_allocator;
     };
 }
 
