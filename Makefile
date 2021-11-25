@@ -1,70 +1,68 @@
 NAME =	a.out
 
-S =		src/
-O = 	obj/
-I = 	include/
-D =		dep/
+SRC =			src/main.cpp 
 
-SRC =			main.cpp 
+SRCS =			$(addprefix $(DIR_SRCS), $(SRC))
 
-OBJ =			$(SRC:$S%.cpp=$O%.o)
-DEP = $(SRC:$S%=$D%.d)
+OBJS =			$(SRCS:.cpp=.o)
+
 HEADERS =	-I $(DIR_HEADERS)
-LIBS = 
 
 DIR_HEADERS = 		./include/
+
+DIR_SRCS =		
+
+DIR_OBJS = 		./objs/
+
 DIR_LIBFT =		./libs/libft/
-	
+
+LIBS = 	
+
+
 
 
 BONUS_NAME = 	
+
 BONUS_SRC =		
+
 BONUS_SRCS =	$(addprefix $(DIR_BONUS), $(BONUS_SRC))
+
 BONUS_OBJS =	$(BONUS_SRCS:.cpp=.o)
+
 BONUS_HEADERS = $(HEADERS) -I $(DIR_BONUS)include/
+
 DIR_BONUS = 	./bonus/
+
+
 
 
 RM =			rm -rf
 
 CC =			clang++
+
 FLAGS =			-Wall -Werror -Wextra -std=c++98
 
-$O:
-		@mkdir $@
-
-$(OBJ): | $O
-
-$(OBJ): $O%.o: $S%
-	@$(CC) $(FLAGS) -c $< -o $@
-	@echo "Compiled "$<" successfully!"
-
-$D:
-		@ mkdir $@
-
-$(DEP): | $D
-
-$(DEP): $D%.d: $S%
-	$(CC) $(FLAGS) -MM -MF $@ -MT "$O$*.o $@" $<
 
 
-all:		$(NAME) $(BONUS)
+all:			$(NAME) $(BONUS)
 
-$(NAME) :	$(OBJ)
-	$(CC) $^ -o $@
+$(NAME) :		$(OBJS)
+			$(CC)  $(HEADERS) $(SRCS) -o $(NAME) $(LIBS) 
 
-cleanobj:
-			$(RM) $(wildcard $O)
-			$(RM) -r $O
 
-clean:		cleanobj
-				$(RM) $(OBJ)
+%.o: %.cpp
+				@$(CC) $(FLAGS) $(HEADERS) -c $< -o $@
+				@echo "Compiled "$<" successfully!"
+norme:
+				norminette $(DIR_SRCS)
+				norminette $(DIR_HEADERS)
+
+clean:
+			$(RM) $(OBJS)
 
 fclean:		clean
-				$(RM) $(NAME)
+			$(RM) $(NAME)
 
 re:			fclean all
-
--include $(DEP)
 
 .PHONY:			all, clean, fclean, re, bonus

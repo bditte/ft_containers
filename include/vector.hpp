@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2021/11/24 14:37:58 by bditte           ###   ########.fr       */
+/*   Updated: 2021/11/25 13:45:47 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define VECTOR_HPP
 
 # include <iostream>
-# include <stdlib.h>
+# include <iterator.hpp>
 namespace ft 
 {
     template <class T, class Alloc = std::allocator<T> > 
@@ -30,13 +30,20 @@ namespace ft
         typedef typename Alloc::const_pointer       						const_pointer;
         typedef std::size_t                         						size_type;
 		typedef std::ptrdiff_t                      						difference_type;
-        typedef	std::iterator<std::random_access_iterator_tag, T>			iterator;
-		typedef	const std::iterator<std::random_access_iterator_tag, T>		const_iterator;
-		typedef std::reverse_iterator<iterator>								reverse_iterator;
-		typedef const std::reverse_iterator<const_iterator>						const_reverse_iterator;
-	/*
-		iterator 		begin() { vector::iterator res = this->_array; return (res); };
-		const iterator	begin() const;*/
+        typedef	myIterator<T>												iterator;
+		typedef	const myIterator<T>											const_iterator;
+		typedef myReverseIterator<T>										reverse_iterator;
+		typedef const myReverseIterator<T>									const_reverse_iterator;
+	
+		/* Iterators */
+		iterator 										begin() { return (iterator(this->_array)); }
+		const_iterator									begin() const { return (iterator(this->_array)); }
+		iterator 										end() { return (iterator(&this->_array[this->_size])); }
+		const_iterator									end() const { return (iterator(&this->_array[this->_size])); }
+		reverse_iterator 								rbegin() { return (reverse_iterator(&this->_array[this->_size - 1])); }
+		const_reverse_iterator							rbegin() const { return (reverse_iterator(&this->_array[this->_size - 1])); }
+		reverse_iterator 								rend() { return (reverse_iterator(this->_array - 1)); }
+		const_reverse_iterator							rend() const { return (reverse_iterator(this->_array - 1)); }
 		/* Constructors */
         explicit vector(const allocator_type& alloc = allocator_type()): _array(NULL), _size(0), _capacity(0), _allocator(alloc) {};
         explicit vector(size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type()): _size(n), _capacity(n)
