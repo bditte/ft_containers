@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 11:06:56 by bditte            #+#    #+#             */
-/*   Updated: 2021/11/25 13:47:24 by bditte           ###   ########.fr       */
+/*   Updated: 2021/11/25 14:47:34 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,14 @@ int main()
 	const ft::vector<int>::reverse_iterator	myit = myvec.rbegin();
 	const std::vector<int>::reverse_iterator stdit = stdvec.rbegin();
 
+	myvec.pop_back();
+	stdvec.pop_back();
+	//stdvec[9] = 20;
+	//myvec[9] = 20;
     std::cout << "myvec size " << myvec.size() << std::endl;
 	std::cout << "cpyvec size " << cpyvec.size() << std::endl;
 	std::cout << "stdvec size " << stdvec.size() << std::endl;
+	std::cout << "myvec capacity " << myvec.capacity() << std::endl;
     std::cout << "stdvec capacity " << stdvec.capacity() << std::endl;
 	
 
@@ -39,14 +44,14 @@ int main()
 
 	myvec[myvec.size() - 1] = 5;
 	myvec[5] = 8;
-	stdvec[myvec.size() - 1] = 5;
+	stdvec[stdvec.size() - 1] = 5;
 	stdvec[5] = 8;
-	std::cout << "my iterator value : " << *myit << std::endl;
+	std::cout << "my iterator value : " << *myvec.data() << std::endl;
 	std::cout << "my iterator value : " << (myit - myvec.rend()) << std::endl;
-	std::cout << "my iterator value : " << *(myit) << std::endl;
-	std::cout << "std iterator value : " << *(stdit) << std::endl;
+	std::cout << "my iterator value : " << *(stdvec.end()) << std::endl;
+	std::cout << "std iterator value : " << *stdvec.data() << std::endl;
 	std::cout << "std iterator value : " << (stdit - stdvec.rend()) << std::endl;
-	std::cout << "std iterator value : " << *(stdit) << std::endl;
+	std::cout << "std iterator value : " << *(stdvec.end()) << std::endl;
 
 	/*
 	std::cout << myvec.empty() << std::endl;

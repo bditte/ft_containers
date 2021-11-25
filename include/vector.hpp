@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2021/11/25 13:45:47 by bditte           ###   ########.fr       */
+/*   Updated: 2021/11/25 14:48:39 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ namespace ft
     {
         public:
 
+		/* Member types */
         typedef T                                   						value_type;
         typedef Alloc                               						allocator_type;
         typedef value_type&                         						reference;
@@ -44,6 +45,7 @@ namespace ft
 		const_reverse_iterator							rbegin() const { return (reverse_iterator(&this->_array[this->_size - 1])); }
 		reverse_iterator 								rend() { return (reverse_iterator(this->_array - 1)); }
 		const_reverse_iterator							rend() const { return (reverse_iterator(this->_array - 1)); }
+		
 		/* Constructors */
         explicit vector(const allocator_type& alloc = allocator_type()): _array(NULL), _size(0), _capacity(0), _allocator(alloc) {};
         explicit vector(size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type()): _size(n), _capacity(n)
@@ -101,14 +103,16 @@ namespace ft
 			for (size_type i = 0; i < this->_size; i++)
 				this->_array[i] = x._array[i];
         }
+		
 		/* Destructor */
 		~vector() { this->_allocator.deallocate(this->_array, this->_capacity); };
+		
 		/* Capacity */
         size_type	size(void) const { return (this->_size); };
 		size_type 	max_size() const { return (this->get_allocator().max_size()); };
 		void		resize(size_type n, value_type val = value_type())
 		{
-			T*	res;
+			value_type*	res;
 
 			if (n <= this->_size)
 				this->_size -= this->_size - n;
@@ -135,7 +139,7 @@ namespace ft
 		size_type	capacity(void) const { return (this->_capacity); };
 		void		reserve(size_type n)
 		{
-			T*	res;
+			value_type*	res;
 
 			if (n <= this->_capacity)
 				return ;
@@ -195,7 +199,7 @@ namespace ft
 			}
 			else
 			{
-				T* res;
+				value_type* res;
 				try
 				{
 					res = this->_allocator.allocate(n);
@@ -212,6 +216,29 @@ namespace ft
 				}
 			}
 		}
+		void	push_back(const value_type&	val)
+		{
+			if (this->_size == this->_capacity)
+			{
+				value_type* res;
+				try
+				{
+					res = this->_allocator.allocate(this->_capacity * 2);
+				}
+				catch(const std::exception& e)
+				{
+					throw e;
+				}
+				for (size_type i = 0; i < this->_size; i++)
+					res[i] = this->_array[i];
+				this->_allocator.deallocate(this->_array, this->_capacity);
+				this->_array = res;
+				this->_capacity *= 2;
+			}
+			this->_array[this->_size] = val;
+			this->_size++;
+		}
+		void	pop_back() { this->_size--; }
 		/* Allocator */
 		allocator_type get_allocator() const { return (this->_allocator); };
 
