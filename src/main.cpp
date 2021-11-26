@@ -22,35 +22,33 @@
 int main()
 {
     ft::vector<int> 			myvec(10, 3);
+	ft::vector<int> 			emptyvec;
 	ft::vector<int> 			cpyvec(myvec);
 	ft::vector<int> const 		constvec(10, 3);
     std::vector<int> 			stdvec(10, 3);
-	const ft::vector<int>::reverse_iterator	myit = myvec.rbegin();
-	const std::vector<int>::reverse_iterator stdit = stdvec.rbegin();
+	ft::vector<int>::iterator	myit ;
+	std::vector<int>::iterator stdit ;
 
-	myvec.pop_back();
-	stdvec.pop_back();
-	//stdvec[9] = 20;
-	//myvec[9] = 20;
+
+	stdvec.insert(stdvec.end() - 3, 10);
+
     std::cout << "myvec size " << myvec.size() << std::endl;
 	std::cout << "cpyvec size " << cpyvec.size() << std::endl;
 	std::cout << "stdvec size " << stdvec.size() << std::endl;
+	std::cout << "emptyvec size " << emptyvec.size() << std::endl;
 	std::cout << "myvec capacity " << myvec.capacity() << std::endl;
     std::cout << "stdvec capacity " << stdvec.capacity() << std::endl;
 	
+	myit = myvec.begin();
+	myvec.insert(myit, 66);
+	stdit = stdvec.begin() + 1;
+	stdvec.insert(stdit, 66);
 
-	//myit = myvec.begin();
-	//stdit = stdvec.begin();
-
-	myvec[myvec.size() - 1] = 5;
-	myvec[5] = 8;
-	stdvec[stdvec.size() - 1] = 5;
-	stdvec[5] = 8;
-	std::cout << "my iterator value : " << *myvec.data() << std::endl;
-	std::cout << "my iterator value : " << (myit - myvec.rend()) << std::endl;
+	std::cout << "my iterator value : " << myvec.front() << std::endl;
+	std::cout << "my iterator value : " << *myit << std::endl;
 	std::cout << "my iterator value : " << *(stdvec.end()) << std::endl;
-	std::cout << "std iterator value : " << *stdvec.data() << std::endl;
-	std::cout << "std iterator value : " << (stdit - stdvec.rend()) << std::endl;
+	std::cout << "std iterator value : " << stdvec.front() << std::endl;
+	std::cout << "std iterator value : " << *(stdit) << std::endl;
 	std::cout << "std iterator value : " << *(stdvec.end()) << std::endl;
 
 	/*

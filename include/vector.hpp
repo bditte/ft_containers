@@ -189,7 +189,7 @@ namespace ft
 		/* Modifiers */
 		//template <class InputIterator>
   		//void assign (InputIterator first, InputIterator last);
-		void assign (size_type n, const value_type& val)
+		void 				assign (size_type n, const value_type& val)
 		{
 			if (n <= this->_capacity)
 			{
@@ -216,7 +216,7 @@ namespace ft
 				}
 			}
 		}
-		void	push_back(const value_type&	val)
+		void				push_back(const value_type&	val)
 		{
 			if (this->_size == this->_capacity)
 			{
@@ -238,7 +238,12 @@ namespace ft
 			this->_array[this->_size] = val;
 			this->_size++;
 		}
-		void	pop_back() { this->_size--; }
+		void				pop_back() { this->_size--; }
+		iterator			insert(iterator position, const value_type& val)
+		{
+			*position = val;
+			return position;
+		}
 		/* Allocator */
 		allocator_type get_allocator() const { return (this->_allocator); };
 
