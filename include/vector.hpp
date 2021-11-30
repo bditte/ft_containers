@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2021/11/25 14:48:39 by bditte           ###   ########.fr       */
+/*   Updated: 2021/11/30 15:37:40 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,28 +112,27 @@ namespace ft
 		size_type 	max_size() const { return (this->get_allocator().max_size()); };
 		void		resize(size_type n, value_type val = value_type())
 		{
-			value_type*	res;
-
 			if (n <= this->_size)
 				this->_size -= this->_size - n;
 			else
 			{
+				value_type*	res;
 				try
 				{
-					res = this->_allocator.allocate(n);
-					for (size_type i = 0; i < this->_size; i++)
-                		this->get_allocator().construct(res + i, this->_array[i]);
-					for (size_type i = this->_size; i < n; i++)
-						res[i] = val;
-					this->_allocator.deallocate(this->_array, this->capacity);
-					this->_array = res;
-					this->_size = n;
-					this->_capacity = n;
+					res = this->_allocator.allocate(this->_capacity());
 				}
 				catch (const std::exception& e)
 				{
 					throw e;
 				}
+				for (size_type i = 0; i < this->_size; i++)
+					this->get_allocator().construct(res + i, this->_array[i]);
+				for (size_type i = this->_size; i < n; i++)
+					res[i] = val;
+				this->_allocator.deallocate(this->_array, this->capacity());
+				this->_array = res;
+				this->_size = n;
+				this->_capacity = n;
 			}
 		}
 		size_type	capacity(void) const { return (this->_capacity); };
@@ -241,9 +240,68 @@ namespace ft
 		void				pop_back() { this->_size--; }
 		iterator			insert(iterator position, const value_type& val)
 		{
-			*position = val;
+			if (this->_size == this->_capacity)
+			{
+				size_type	pos = 0;
+				for (iterator i = this->begin(); i != position; i++)
+				{
+					pos++;
+					if (i == this->end())
+					{
+						*position = val;
+						pos = this->_size + 2;
+					}
+				}
+				value_type* res;
+				try
+				{
+					res = this->_allocator.allocate(this->_capacity * 2);
+				}
+				catch(const std::exception& e)
+				{
+					throw e;
+				}
+				int j = 0;
+				for (size_type i = 0; i <= this->_size; i++)
+				{
+					if (i == pos)
+						res[i] = val;
+					else
+						res[i] = this->_array[j++];
+				}
+				this->_allocator.deallocate(this->_array, this->_capacity);
+				this->_array = res;
+				this->_capacity *= 2;;
+				this->_size++;
+				if (pos > this->_size)
+					return (position);
+				return (iterator(this->_array + pos));
+			}
+			else
+			{
+				for (iterator i = this->begin(); i != this->end(); i++)
+				{
+					if (i == position)
+					{
+						while (i != this->end())
+						{
+							value_type	old = *i;
+							value_type	next;
+							next = *(i + 1);
+							*i = val;
+							*(i + 1) = old;
+							i++;
+						}
+						return (position);
+					}
+				}
+			}
 			return position;
 		}
+		/*void				insert(iterator position, size_type n, const value_type& val)
+		{
+				
+		}*/
 		/* Allocator */
 		allocator_type get_allocator() const { return (this->_allocator); };
 
