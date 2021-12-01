@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2021/12/01 13:11:05 by bditte           ###   ########.fr       */
+/*   Updated: 2021/12/01 14:54:33 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -499,6 +499,57 @@ namespace ft
         size_type			_capacity;
         allocator_type		_allocator;
     };
+
+	template <class T, class Alloc>
+	bool		operator== (const vector<T, Alloc>& lhs, const vector<T, Alloc>& rhs)
+	{
+		if (lhs.size() != rhs.size())
+			return (false);
+		for (typename vector<T, Alloc>::size_type i = 0; i < lhs.size(); i++)
+		{
+			if (lhs[i] != rhs[i])
+				return (false);
+		}
+		return (true);
+	}
+	template <class T, class Alloc>
+	bool		operator!= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+	{
+		return (!(lhs == rhs));
+	}
+	template <class T, class Alloc>
+	bool		operator<  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+	{
+		typename vector<T, Alloc>::size_type i;
+		for (i = 0; i < lhs.size(); i++)
+		{
+			if (i == rhs.size())
+				return (false);
+			if (lhs[i] < rhs[i])
+				return (true);
+			if (lhs[i] > rhs[i])
+				return (false);
+		}
+		if (i < rhs.size())
+			return (true);
+		return (false);
+	}
+	template <class T, class Alloc>
+	bool operator<= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+	{
+		return (!(rhs < lhs));
+	}
+	template <class T, class Alloc>
+	bool operator>  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+	{
+		return (!(rhs < lhs));
+	}
+	template <class T, class Alloc>
+	bool operator>= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+	{
+		return (!(lhs < rhs));
+	}
+
 }
 
 #endif

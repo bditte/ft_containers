@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 11:06:56 by bditte            #+#    #+#             */
-/*   Updated: 2021/12/01 13:08:35 by bditte           ###   ########.fr       */
+/*   Updated: 2021/12/01 14:55:36 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,13 @@
 #define VALUE 0
 int main()
 {
-    ft::vector<int> 			myvec(10, 3);
+    ft::vector<int> 			myvec(11, 3);
 	ft::vector<int> 			emptyvec;
-	ft::vector<int> 			cpyvec(3, 10);
+	ft::vector<int> 			cpyvec(11, 3);
 	ft::vector<int> const 		constvec(10, 3);
-    std::vector<int> 			stdvec(10, 3);
-	std::vector<int> 			stdcpy(3, 10);
+    std::vector<int> 			stdvec(11, 3);
+	std::vector<int> 			stdcpy(11, 3);
 	ft::vector<int>::iterator	myit ;
-	ft::vector<int>::const_iterator	constit = myvec.begin() ;
 	std::vector<int>::iterator 	stdit ;
 
 	size_t	old_ft_size = myvec.size();
@@ -38,9 +37,10 @@ int main()
 	size_t	old_std_size = myvec.size();
 	size_t	old_std_capacity = myvec.capacity();
 
-	myvec.clear();
-	stdvec.clear();
-
+	if (myvec <= cpyvec)
+		std::cout << "ft TRUE" <<std::endl;
+	if (stdvec <= stdcpy)
+		std::cout << "std TRUE" <<std::endl;
 
 	//stdvec.insert(stdvec.begin(), 8);
 	//myvec.insert(myvec.begin(), 8);
