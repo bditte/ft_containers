@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2021/11/30 15:37:40 by bditte           ###   ########.fr       */
+/*   Updated: 2021/12/01 13:11:05 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,15 +32,15 @@ namespace ft
         typedef std::size_t                         						size_type;
 		typedef std::ptrdiff_t                      						difference_type;
         typedef	myIterator<T>												iterator;
-		typedef	const myIterator<T>											const_iterator;
+		typedef	myIterator<const T>											const_iterator;
 		typedef myReverseIterator<T>										reverse_iterator;
 		typedef const myReverseIterator<T>									const_reverse_iterator;
 	
 		/* Iterators */
 		iterator 										begin() { return (iterator(this->_array)); }
-		const_iterator									begin() const { return (iterator(this->_array)); }
+		const_iterator									begin() const { return (const_iterator(this->_array)); }
 		iterator 										end() { return (iterator(&this->_array[this->_size])); }
-		const_iterator									end() const { return (iterator(&this->_array[this->_size])); }
+		const_iterator									end() const { return (const_iterator(&this->_array[this->_size])); }
 		reverse_iterator 								rbegin() { return (reverse_iterator(&this->_array[this->_size - 1])); }
 		const_reverse_iterator							rbegin() const { return (reverse_iterator(&this->_array[this->_size - 1])); }
 		reverse_iterator 								rend() { return (reverse_iterator(this->_array - 1)); }
@@ -119,7 +119,7 @@ namespace ft
 				value_type*	res;
 				try
 				{
-					res = this->_allocator.allocate(this->_capacity());
+					res = this->_allocator.allocate(this->_capacity * 2);
 				}
 				catch (const std::exception& e)
 				{
@@ -129,10 +129,10 @@ namespace ft
 					this->get_allocator().construct(res + i, this->_array[i]);
 				for (size_type i = this->_size; i < n; i++)
 					res[i] = val;
-				this->_allocator.deallocate(this->_array, this->capacity());
+				this->_allocator.deallocate(this->_array, this->_capacity);
 				this->_array = res;
 				this->_size = n;
-				this->_capacity = n;
+				this->_capacity *= 2;
 			}
 		}
 		size_type	capacity(void) const { return (this->_capacity); };
@@ -186,8 +186,47 @@ namespace ft
 		const value_type*	data(void) const { return (this->_array); };
 
 		/* Modifiers */
-		//template <class InputIterator>
-  		//void assign (InputIterator first, InputIterator last);
+		/*template <class InputIterator>
+  		void				assign (InputIterator first, InputIterator last)
+		{
+			InputIterator	tmp = first;
+			size_type		size = 0;
+
+			while (tmp != last)
+				size++;
+			size_type i = 0;
+			while (i < this->_capacity && first != last)
+			{
+				this->_array[i++] = *first;
+				first++;
+			}
+			if (size > this->_capacity)
+			{
+				value_type* res;
+				try
+				{
+					res = this->_allocator.allocate(this->_capacity * 2);
+					for (size_type j = 0; j < size; j++)
+					{
+						if (j < i)
+							this->get_allocator().construct(res + j, this->_array[i]);
+						else
+						{
+							this->get_allocator().construct(res + j, *first);
+							first++;
+						}
+					}
+					this->_allocator.deallocate(this->_array, this->_capacity);
+					this->_array = res;
+					this->_capacity *= 2;
+				}
+				catch (const std::exception& e)
+				{
+					throw e;
+				}
+			}
+			this->_size = size;
+		}*/
 		void 				assign (size_type n, const value_type& val)
 		{
 			if (n <= this->_capacity)
@@ -279,19 +318,22 @@ namespace ft
 			}
 			else
 			{
-				for (iterator i = this->begin(); i != this->end(); i++)
+				for (size_type i = 0; i <= this->_size; i++)
 				{
-					if (i == position)
+					if (iterator(this->_array + i) == position)
 					{
-						while (i != this->end())
+						value_type	next = this->_array[i];
+						value_type 	tmp;
+						this->_array[i] = val;
+						i++;
+						while (i <= this->_size)
 						{
-							value_type	old = *i;
-							value_type	next;
-							next = *(i + 1);
-							*i = val;
-							*(i + 1) = old;
+							tmp = next;
+							next = this->_array[i];
+							this->_array[i] = tmp;
 							i++;
 						}
+						this->_size++;
 						return (position);
 					}
 				}
@@ -300,10 +342,155 @@ namespace ft
 		}
 		/*void				insert(iterator position, size_type n, const value_type& val)
 		{
-				
+			if (this->_size + n > this->_capacity)
+			{
+				value_type*	res;
+				try
+				{
+					if (this->_capacity * 2 >= this->_capacity + n)
+					{
+						res = this->_allocator.allocate(this->_capacity * 2);
+						this->_capacity *= 2;
+					}
+					else
+					{
+						res = this->_allocator.allocate(this->_capacity + n);
+						this->_capacity += n;
+					}
+				}
+				catch(const std::exception& e)
+				{
+					std::cerr << e.what() << '\n';
+				}
+				size_type	pos = 0;
+				for (iterator i = this->begin(); i != position; i++)
+				{
+					pos++;
+					if (i == this->end())
+					{
+						*position = val;
+						pos = this->_size + 2;
+						break ;
+					}
+				}
+				int j = 0;
+				size_type	added = 0;
+				for (size_type i = 0; i <= this->_size + n; i++)
+				{
+					if (i >= pos && added < n)
+					{
+						res[i] = val;
+						added++;
+					}
+					else
+						res[i] = this->_array[j++];
+				}
+				this->_allocator.deallocate(this->_array, this->_capacity);
+				this->_array = res;
+				this->_size += n;
+				if (pos > this->_size)
+					return ;
+				return ;								
+			}
+			for (size_type i = 0; i <= this->_size; i++)
+				{
+					if (iterator(this->_array + i) == position)
+					{
+						value_type	next = this->_array[i];
+						value_type 	tmp;
+						this->_array[i] = val;
+						i++;
+						while (i <= this->_size)
+						{
+							tmp = next;
+							next = this->_array[i];
+							this->_array[i] = tmp;
+							i++;
+						}
+						this->_size++;
+						return (position);
+					}
+				}
+			iterator tmp = position;
+			while (tmp != end())
+			{
+				*(tmp + n) = *tmp;
+				tmp++;
+			}		
 		}*/
+
+		iterator 			erase(iterator position)
+		{
+			*position = *(position + 1);
+			position++;
+			while (position != this->end())
+			{
+				*position = *(position + 1);
+				position++;
+			}
+			this->_size--;
+			return (position);
+		}
+		iterator			erase(iterator first, iterator last)
+		{
+			iterator	pos = first;
+			size_type	size = 0;
+
+			while (pos != last)
+			{
+				pos++;
+				size++;
+			}
+			pos = this->begin();
+			while (pos != this->end())
+			{
+				if (pos == first)
+				{
+					std::cout << "here\n";
+					while (pos != this->end())
+					{
+						*pos = *(pos + size);
+						pos++;
+					}
+					this->_size -= size;
+					return (last);
+				}
+				pos++;
+			}
+			return (last);
+		}
+
+		void			swap(vector& x)
+		{
+			value_type* 		tmp_array = this->_array;
+			size_type			tmp_size = this->_size;
+       		size_type			tmp_capacity = this->_capacity;
+        	allocator_type		tmp_allocator = this->_allocator;
+			
+			this->_array = x._array;
+			this->_size = x._size;
+			this->_capacity = x._capacity;
+			this->_allocator = x._allocator;
+			x._array = tmp_array;
+			x._size = tmp_size;
+			x._capacity = tmp_capacity;
+			x._allocator = tmp_allocator;
+
+			return ;
+		}
+
+		void			clear() { this->_size = 0; }
 		/* Allocator */
 		allocator_type get_allocator() const { return (this->_allocator); };
+
+		vector&		operator=(vector& rhs)
+		{
+			this->_array = rhs._array;
+			this->_size = rhs._size;
+			this->_capacity = rhs._capacity;
+			this->_allocator = rhs._allocator;
+			return (*this);
+		}
 
         private:
         
