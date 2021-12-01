@@ -25,10 +25,10 @@ int main()
 {
     ft::vector<int> 			myvec(11, 3);
 	ft::vector<int> 			emptyvec;
-	ft::vector<int> 			cpyvec(11, 3);
+	ft::vector<int> 			cpyvec(5, 13);
 	ft::vector<int> const 		constvec(10, 3);
     std::vector<int> 			stdvec(11, 3);
-	std::vector<int> 			stdcpy(11, 3);
+	std::vector<int> 			stdcpy(5, 13);
 	ft::vector<int>::iterator	myit ;
 	std::vector<int>::iterator 	stdit ;
 
@@ -37,17 +37,14 @@ int main()
 	size_t	old_std_size = myvec.size();
 	size_t	old_std_capacity = myvec.capacity();
 
-	if (myvec <= cpyvec)
-		std::cout << "ft TRUE" <<std::endl;
-	if (stdvec <= stdcpy)
-		std::cout << "std TRUE" <<std::endl;
-
 	//stdvec.insert(stdvec.begin(), 8);
 	//myvec.insert(myvec.begin(), 8);
 	//stdvec.insert(stdvec.begin(), 4, 7);
 	//stdvec.insert(stdvec.end() - 2, 4, -7);
 	//myvec.insert(myvec.begin(), 4, 7);
 
+	swap(stdvec, stdcpy);
+	swap(myvec, cpyvec);
     std::cout << "myvec old_size " << old_ft_size  << " new size : " << myvec.size()<< std::endl;
 	std::cout << "myvec old_capacity " << old_ft_capacity  << " new capacity : " << myvec.capacity() << std::endl;
 	std::cout << "stdvec old_size " << old_std_size  << " new size : " << stdvec.size()<< std::endl;

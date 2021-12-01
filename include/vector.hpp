@@ -17,6 +17,7 @@
 # include <iterator.hpp>
 namespace ft 
 {
+
     template <class T, class Alloc = std::allocator<T> > 
     class vector
     {
@@ -492,6 +493,7 @@ namespace ft
 			return (*this);
 		}
 
+		friend void		swap(vector<T, Alloc>& x, vector<T, Alloc>& y) { x.swap(y); }
         private:
         
         T*					_array;
@@ -512,11 +514,13 @@ namespace ft
 		}
 		return (true);
 	}
+
 	template <class T, class Alloc>
 	bool		operator!= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 	{
 		return (!(lhs == rhs));
 	}
+
 	template <class T, class Alloc>
 	bool		operator<  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 	{
@@ -534,16 +538,19 @@ namespace ft
 			return (true);
 		return (false);
 	}
+
 	template <class T, class Alloc>
 	bool operator<= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 	{
 		return (!(rhs < lhs));
 	}
+
 	template <class T, class Alloc>
 	bool operator>  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 	{
 		return (!(rhs < lhs));
 	}
+
 	template <class T, class Alloc>
 	bool operator>= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
 	{
