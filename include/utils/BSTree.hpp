@@ -34,9 +34,15 @@ class Node
 		~Node() 
 		{ 
 			if (_left)
+			{
+				std::cout << "Left\n";
 				delete _left;
+			}
 			if (_right)
+			{
+				std::cout << "Right\n";
 				delete _right;
+			}
 		}
 
 	Node&		operator=(Node& rhs)
@@ -135,6 +141,10 @@ class	BSTree
 		return (*this);
 	}*/
 
+	void				deleteNode(key_type&	key)
+	{
+		deleteNodeHelper(this->_root, key);
+	}
 
 	void				insert(node_pointer root, const value_type& val)
 	{
@@ -228,6 +238,147 @@ class	BSTree
 
 	private:
 
+		node_pointer				minimum(node_pointer	node)
+		{
+			while (node->_left != _TNULL)
+				node = node->_left;
+			return (node);
+		}
+
+		void						rbTransplant(node_pointer u, node_pointer v)
+		{
+			if (u->_parent == NULL)
+				_root = v;
+			else if (u == u->_parent->_left)
+				u->_parent->_left = v;
+			else
+				u->_parent->_right = v;
+			v->_parent = u->_parent;
+		}
+
+		void						fixDelete(node_pointer x)
+		{
+			node_pointer s;
+			while (x != _root && x->_color == BLACK)
+			{
+				if (x == x->_parent->_left)
+				{
+					s = x->_parent->_right;
+					if (s->_color == RED)
+					{
+						s->_color = BLACK;
+						x->_parent->_color = RED;
+						leftRotate(x->_parent);
+						s = x->_parent->_right;
+					}
+					if (s->_left->_color == BLACK && s->_right->_color == BLACK)
+					{
+						s->_color = RED;
+						x = x->_parent;
+					}
+					else
+					{
+						if (s->_right->_color == BLACK)
+						{
+							s->_left->_color = BLACK;
+							s->_color = RED;
+							rightRotate(s);
+							s = x->_parent->_right;
+						}
+						s->_color = x->_parent->_color;
+						x->_parent->_color = BLACK;
+						s->_right->_color = BLACK;
+						leftRotate(x->_parent);
+						x = _root;
+					}
+				}
+				else
+				{
+					s = x->_parent->_left;
+					if (s->_color == RED)
+					{
+						s->_color = BLACK;
+						x->_parent->_color = RED;
+						rightRotate(x->_parent);
+						s = x->_parent->_left;
+					}
+					if (s->_right->_color == BLACK && s->_right->_color == BLACK)
+					{
+						s->_color = RED;
+						x = x->_parent;
+					}
+					else
+					{
+						if (s->_left->_color == BLACK)
+						{
+							s->_right->_color = BLACK;
+							s->_color = RED;
+							leftRotate(s);
+							s = x->_parent->_left;
+						}
+						s->_color = x->_parent->_color;
+						x->_parent->_color = BLACK;
+						s->left->_color = BLACK;
+						rightRotate(x->_parent);
+						x = _root;
+					}
+				}
+			}
+			x->_color = BLACK;
+		}
+
+		void						deleteNodeHelper(node_pointer node, key_type key)
+		{
+			node_pointer z = _TNULL;
+			node_pointer x, y;
+			
+			while (node != _TNULL)
+			{
+				if (node->getKey() == key)
+					z = node;
+				if (node->getKey() <= key)
+					node = node->_right;
+				else
+					node = node->_left;
+			}
+
+			if (z == _TNULL)
+				return ;
+			y = z;
+			bool	color = y->_color;
+			if (z->_left == _TNULL)
+			{
+				x = z->_right;
+				rbTransplant(z, z->_right);
+			}
+			else if (z->_right == _TNULL)
+			{
+				x = z->_left;
+				rbTransplant(z, z->_left);
+			}
+			else
+			{
+				y = minimum(z->_right);
+				color = y->_color;
+				x = y->_right;
+				if (y->_parent == z)
+					x->_parent = y;
+				else
+				{
+					rbTransplant(y, y->_right);
+					y->_right = z->_right;
+					y->_right->_parent = y;
+				}
+				rbTransplant(z, y);
+				y->_left = z->_left;
+				y->_left->_parent = y;
+				y->_color = z->_color;
+			}
+			delete z;
+			if (color == BLACK)
+				fixDelete(x);
+		}
+
 		void						fixInsert(node_pointer k)
 		{
 			node_pointer	u;
@@ -287,6 +438,7 @@ class	BSTree
 
 		void					initTNULL()
 		{
+			_TNULL = new node_type();
 			_TNULL->setLeft(NULL);
 			_TNULL->setRight(NULL);
 			_TNULL->setColor(BLACK);
