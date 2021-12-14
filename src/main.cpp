@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 11:06:56 by bditte            #+#    #+#             */
-/*   Updated: 2021/12/08 12:46:43 by bditte           ###   ########.fr       */
+/*   Updated: 2021/12/14 11:21:02 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,15 +23,15 @@
 #define VALUE 0
 int main()
 {
-	int	array[] = {1, 2, 3, 4};
+	//int	array[] = {1, 2, 3, 4};
     ft::vector<int> 			myvec(11, 3);
 	ft::vector<int> 			emptyvec;
 	ft::vector<int> 			cpyvec(5, 5);
 	ft::vector<int> const 		constvec(5, 5);
     std::vector<int> 			stdvec(11, 3);
 	std::vector<int> 			stdcpy(5, 5);
-	ft::vector<int>::iterator	myit ;
-	std::vector<int>::iterator 	stdit ;
+	ft::vector<int>::const_iterator	myit ;
+	std::vector<int>::const_iterator 	stdit ;
 
 	//myvec = cpyvec;
 	size_t	old_ft_size = myvec.size();
@@ -39,10 +39,10 @@ int main()
 	size_t	old_std_size = myvec.size();
 	size_t	old_std_capacity = myvec.capacity();
 
-	stdvec.insert(stdvec.begin(), 4, 7);
+	/*stdvec.insert(stdvec.begin(), 4, 7);
 	myvec.insert(myvec.begin(), 4, 7);
 	stdvec.insert(stdvec.begin() + 2, array, array + 4);
-	myvec.insert(myvec.begin() + 2, array, array + 4);
+	myvec.insert(myvec.begin() + 2, array, array + 4);*/
     std::cout << "myvec old_size " << old_ft_size  << " new size : " << myvec.size()<< std::endl;
 	std::cout << "myvec old_capacity " << old_ft_capacity  << " new capacity : " << myvec.capacity() << std::endl;
 	std::cout << "stdvec old_size " << old_std_size  << " new size : " << stdvec.size()<< std::endl;
@@ -53,8 +53,8 @@ int main()
 	std::cout << stdvec.back() << std::endl;
 
 	std::cout << "myvec: ";
-	for (ft::vector<int>::iterator it = myvec.begin(); it != myvec.end(); it++)
-		std::cout << *it << " ";
+	/*for (ft::vector<int>::iterator it = myvec.begin(); it != myvec.end(); it++)
+		std::cout << *it << " ";*/
 	std::cout << std::endl << "stdvec: ";
 	for (std::vector<int>::iterator it = stdvec.begin(); it != stdvec.end(); it++)
 		std::cout << *it << " ";
@@ -64,7 +64,8 @@ int main()
 		std::cout << *cpybegin << " ";
 		i++;
 	}*/
-	myit = myvec.begin() + 2;
+	myit = myvec.begin();
+	stdit = stdvec.begin() + 2;
 	myvec[0] = 99;
 	//myit = myvec.insert(myvec.begin() + 200, 66);
 	//stdvec.resize(15);

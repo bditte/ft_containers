@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2021/12/08 12:47:01 by bditte           ###   ########.fr       */
+/*   Updated: 2021/12/14 12:04:27 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,9 @@
 # define VECTOR_HPP
 
 # include <iostream>
-# include <utils/iterator.hpp>
+# include "utils/iterator.hpp"
 # include "utils/utils.hpp"
+# include "utils/const_iterator.hpp"
 
 namespace ft 
 {
@@ -39,8 +40,9 @@ namespace ft
 		typedef const myReverseIterator<T>									const_reverse_iterator;
 	
 		/* Iterators */
-		iterator 										begin() { return (iterator(this->_array)); }
+
 		const_iterator									begin() const { return (const_iterator(this->_array)); }
+		iterator 										begin() { return (iterator(this->_array)); }
 		iterator 										end() { return (iterator(&this->_array[this->_size])); }
 		const_iterator									end() const { return (const_iterator(&this->_array[this->_size])); }
 		reverse_iterator 								rbegin() { return (reverse_iterator(&this->_array[this->_size - 1])); }
@@ -140,6 +142,9 @@ namespace ft
 			}
 		}
 		size_type	capacity(void) const { return (this->_capacity); };
+		// NEED TO ADD CORRECT ERROR
+		//
+		//
 		void		reserve(size_type n)
 		{
 			value_type*	res;
@@ -150,17 +155,17 @@ namespace ft
 				throw std::length_error("vector::reserve");
 			try
 			{
-				res = this->_allocator.allocate(n);
-				for (size_type i = 0; i < this->_size; i++)
-					this->get_allocator().construct(res + i, this->_array[i]);
-				this->_allocator.deallocate(this->_array, this->_capacity);
-				this->_array = res;
-				this->_capacity = n;
+				res = this->_allocator.allocate(n - 1);
 			}
 			catch (const std::exception& e)
 			{
 				throw e;
 			}
+			for (size_type i = 0; i < this->_size; i++)
+				this->get_allocator().construct(res + i, this->_array[i]);
+			this->_allocator.deallocate(this->_array, this->_capacity);
+			this->_array = res;
+			this->_capacity = n;
 		}
 		bool		empty(void)	const { if (this->_size == 0) {return (true);} return (false); };
 		

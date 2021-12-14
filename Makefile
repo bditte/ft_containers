@@ -1,6 +1,6 @@
 NAME =	a.out
 
-SRC =			src/main_map.cpp 
+SRC =			src/main_vector.cpp 
 
 SRCS =			$(addprefix $(DIR_SRCS), $(SRC))
 

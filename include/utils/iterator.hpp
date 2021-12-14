@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/25 10:30:47 by bditte            #+#    #+#             */
-/*   Updated: 2021/12/07 11:59:10 by bditte           ###   ########.fr       */
+/*   Updated: 2021/12/14 11:36:21 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,8 @@ public:
 		this->ptr = tmp_ptr; return res;
 	}
 	
+	value_type&		operator[](int n) const { return (this->ptr[n]); }
+
 	difference_type				operator-(const myIterator<value_type>& rhs) const { return (std::distance(rhs.get_ptr(), this->get_ptr()));}
 
 	reference					operator*(){ return (*this->ptr); }
