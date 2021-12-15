@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/25 10:30:47 by bditte            #+#    #+#             */
-/*   Updated: 2021/12/14 11:36:21 by bditte           ###   ########.fr       */
+/*   Updated: 2021/12/15 12:06:20 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ public:
 
 	typedef	T					value_type;
 	typedef T&					reference;
+	typedef T*					pointer;
 	typedef const T&			const_reference;
 	typedef	std::ptrdiff_t		difference_type;
 
@@ -57,6 +58,7 @@ public:
 	difference_type				operator-(const myIterator<value_type>& rhs) const { return (std::distance(rhs.get_ptr(), this->get_ptr()));}
 
 	reference					operator*(){ return (*this->ptr); }
+	reference					operator->(){ return (*this->ptr); }
 	const_reference				operator*() const { return (*this->ptr); }
 	
 	value_type*					get_ptr() const { return (this->ptr); };
