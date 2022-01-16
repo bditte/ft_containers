@@ -1,6 +1,6 @@
 NAME =	a.out
 
-SRC =			src/main_map.cpp 
+SRC =			src/main.cpp 
 
 SRCS =			$(addprefix $(DIR_SRCS), $(SRC))
 
@@ -35,7 +35,6 @@ DIR_BONUS = 	./bonus/
 
 
 
-
 RM =			rm -rf
 
 CC =			clang++
@@ -49,10 +48,17 @@ all:			$(NAME) $(BONUS)
 $(NAME) :		$(OBJS)
 			$(CC)  $(HEADERS) $(SRCS) -o $(NAME) $(LIBS) 
 
-
 %.o: %.cpp
 				@$(CC) $(FLAGS) $(HEADERS) -c $< -o $@
 				@echo "Compiled "$<" successfully!"
+
+std:			$(OBJS)
+			$(CC)  $(HEADERS) $(SRCS) -DNAMESPACE=std -o $(NAME) $(LIBS)
+
+
+ft:			$(OBJS)
+			$(CC)  $(HEADERS) $(SRCS) -DNAMESPACE=ft -o $(NAME) $(LIBS) 
+
 norme:
 				norminette $(DIR_SRCS)
 				norminette $(DIR_HEADERS)

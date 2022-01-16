@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2022/01/10 11:32:46 by bditte           ###   ########.fr       */
+/*   Updated: 2022/01/16 19:53:17 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,9 @@
 # include <iostream>
 # include "utils/vector_iterator.hpp"
 # include "utils/utils.hpp"
-# include "utils/const_iterator.hpp"
 # include <cstdlib>
 
-namespace ft 
+namespace ft
 {
     template <class T, class Allocator = std::allocator<T> > 
     class vector
