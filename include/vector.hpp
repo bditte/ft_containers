@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2021/12/15 12:26:33 by bditte           ###   ########.fr       */
+/*   Updated: 2022/01/10 11:32:46 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,10 @@
 # define VECTOR_HPP
 
 # include <iostream>
-# include "utils/iterator.hpp"
+# include "utils/vector_iterator.hpp"
 # include "utils/utils.hpp"
 # include "utils/const_iterator.hpp"
+# include <cstdlib>
 
 namespace ft 
 {
@@ -25,30 +26,103 @@ namespace ft
     {
         public:
 
-		/* Member types */
+		// Member types
+
         typedef T                                   						value_type;
-        typedef Allocator                               						allocator_type;
+        typedef Allocator                               					allocator_type;
         typedef value_type&                         						reference;
         typedef const value_type&                   						const_reference;
-        typedef typename Allocator::pointer             						pointer;
-        typedef typename Allocator::const_pointer       						const_pointer;
+        typedef typename Allocator::pointer             					pointer;
+        typedef typename Allocator::const_pointer       					const_pointer;
         typedef std::size_t                         						size_type;
 		typedef std::ptrdiff_t                      						difference_type;
-        typedef	myIterator<T>												iterator;
-		typedef	myIterator<const T>											const_iterator;
-		typedef myReverseIterator<T>										reverse_iterator;
-		typedef const myReverseIterator<T>									const_reverse_iterator;
-	
-		/* Iterators */
 
-		const_iterator									begin() const { return (const_iterator(this->_array)); }
+		// Iterator
+		class vector_const_iterator: public RandomIterator<T>
+		{
+			public:
+				typedef	 T					value_type;
+				typedef const T&			reference;
+				typedef const T*			pointer;
+				typedef	std::ptrdiff_t		difference_type;
+				typedef	RandomIterator<T>	parent;
+			protected:
+				vector_const_iterator(value_type* ptr): parent(ptr){}
+			public:
+				vector_const_iterator(void): parent(NULL){}
+				vector_const_iterator(const RandomIterator<T>& src): RandomIterator<T>(src){}
+				~vector_const_iterator(){}
+
+				vector_const_iterator&				operator+=(const difference_type& diff){ parent::ptr += diff; return *this;}
+				vector_const_iterator&				operator-=(const difference_type& diff){ parent::ptr -= diff; return *this;}
+				vector_const_iterator&				operator++(){ parent::ptr++; return *this;}
+				vector_const_iterator&				operator--(){ parent::ptr--; return *this;}
+				vector_const_iterator				operator++(int){vector_const_iterator tmp = *this; parent::ptr++; return tmp;}
+				vector_const_iterator				operator--(int){vector_const_iterator tmp = *this; parent::ptr--; return tmp;}
+				
+				vector_const_iterator				operator+(const difference_type& diff) const { return (vector_const_iterator(this->ptr + diff)); }
+				friend vector_const_iterator		operator+(const difference_type& diff, vector_const_iterator& rhs) { return rhs.operator+(diff); }
+				vector_const_iterator				operator-(const difference_type& diff) const { return (vector_const_iterator(this->ptr - diff)); }		
+				difference_type						operator-(const vector_const_iterator& rhs) const { return (std::distance(rhs.parent::get_ptr(), parent::get_ptr()));}
+
+				reference							operator*() const { return (*parent::ptr); }
+				pointer								operator->() const { return (parent::ptr); }
+				reference							operator[](int n) const { return (this->ptr[n]); }
+
+				friend class vector;
+		};
+
+		class vector_iterator: public RandomIterator<T>
+		{
+
+		protected:
+			vector_iterator(T* ptr): parent(ptr){}
+		public:
+
+			typedef	T					value_type;
+			typedef T&					reference;
+			typedef T*					pointer;
+			typedef const T&			const_reference;
+			typedef	std::ptrdiff_t		difference_type;
+			typedef	RandomIterator<T>	parent;
+
+			vector_iterator(): parent(NULL){}
+			vector_iterator(const vector_iterator& it): parent(it){}
+			~vector_iterator(){}
+
+			vector_iterator&			operator+=(const difference_type& diff){ parent::ptr += diff; return *this;}
+			vector_iterator&			operator-=(const difference_type& diff){ parent::ptr -= diff; return *this;}
+			vector_iterator&			operator++(){ parent::ptr++; return *this;}
+			vector_iterator&			operator--(){ parent::ptr--; return *this;}
+			vector_iterator				operator++(int){vector_iterator tmp = *this; parent::ptr++; return tmp;}
+			vector_iterator				operator--(int){vector_iterator tmp = *this; parent::ptr--; return tmp;}
+			
+			vector_iterator				operator+(const difference_type& diff) const	{ return vector_iterator(parent::ptr + diff); }
+			friend vector_iterator		operator+(const difference_type& diff, vector_iterator& rhs) { return rhs.operator+(diff); }
+			vector_iterator				operator-(const difference_type& diff) const { return vector_iterator(parent::ptr - diff);}		
+			difference_type				operator-(const RandomIterator<T>& rhs) const { return (parent::operator-(rhs)); }
+
+			reference					operator*(){ return (*parent::ptr); }
+			pointer						operator->() const { return (parent::ptr); }
+			reference					operator[](int n) const { return (this->ptr[n]); }
+		
+			friend class vector;
+		};
+
+        typedef	vector_iterator												iterator;
+		typedef	vector_const_iterator										const_iterator;
+		typedef ft::reverse_iterator<iterator>								reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator>						const_reverse_iterator;
+	
+
 		iterator 										begin() { return (iterator(this->_array)); }
+		const_iterator									begin() const { return (const_iterator(this->_array)); }
 		iterator 										end() { return (iterator(&this->_array[this->_size])); }
 		const_iterator									end() const { return (const_iterator(&this->_array[this->_size])); }
-		reverse_iterator 								rbegin() { return (reverse_iterator(&this->_array[this->_size - 1])); }
-		const_reverse_iterator							rbegin() const { return (reverse_iterator(&this->_array[this->_size - 1])); }
-		reverse_iterator 								rend() { return (reverse_iterator(this->_array - 1)); }
-		const_reverse_iterator							rend() const { return (reverse_iterator(this->_array - 1)); }
+		reverse_iterator 								rbegin() { return (reverse_iterator(&this->_array[this->_size])); }
+		const_reverse_iterator							rbegin() const { return (const_reverse_iterator(&this->_array[this->_size])); }
+		reverse_iterator 								rend() { return (reverse_iterator(this->_array)); }
+		const_reverse_iterator							rend() const { return (const_reverse_iterator(this->_array)); }
 		
 		/* Constructors */
         explicit vector(const allocator_type& alloc = allocator_type()): _array(NULL), _size(0), _capacity(0), _allocator(alloc) {};
@@ -142,9 +216,6 @@ namespace ft
 			}
 		}
 		size_type	capacity(void) const { return (this->_capacity); };
-		// NEED TO ADD CORRECT ERROR
-		//
-		//
 		void		reserve(size_type n)
 		{
 			value_type*	res;
@@ -573,19 +644,12 @@ namespace ft
 		
 		iterator 			erase(iterator position)
 		{
-			*position = *(position + 1);
-			position++;
-			while (position != this->end())
-			{
-				*position = *(position + 1);
-				position++;
-			}
-			this->_size--;
-			return (position);
+			return (this->erase(position, position + 1));
 		}
 		iterator			erase(iterator first, iterator last)
 		{
 			iterator	pos = first;
+			iterator	end = this->end();
 			size_type	size = 0;
 
 			while (pos != last)
@@ -593,23 +657,16 @@ namespace ft
 				pos++;
 				size++;
 			}
-			pos = this->begin();
-			while (pos != this->end())
+			pos = first;
+			while (last != end)
 			{
-				if (pos == first)
-				{
-					std::cout << "here\n";
-					while (pos != this->end())
-					{
-						*pos = *(pos + size);
-						pos++;
-					}
-					this->_size -= size;
-					return (last);
-				}
-				pos++;
+				*first = *last;
+				++first;
+				++last;
 			}
-			return (last);
+			while (size-- > 0)
+				this->_allocator.destroy(&this->_array[--this->_size]);
+			return (pos);
 		}
 
 		void			swap(vector& x)
