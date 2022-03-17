@@ -1,10 +1,6 @@
 NAME =	a.out
 
-<<<<<<< HEAD
 SRC =			src/main_test.cpp 
-=======
-SRC =			src/main.cpp 
->>>>>>> 1932ee016e4d8a1fad714c0caeec73433ae721e5
 
 SRCS =			$(addprefix $(DIR_SRCS), $(SRC))
 

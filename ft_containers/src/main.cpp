@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 
 #include <iomanip>
@@ -28,24 +27,11 @@ struct Buffer
 #endif
 
 #define COUNT 100//(MAX_RAM / (int)sizeof(Buffer))
-=======
-#include "map.hpp"
-#include "vector.hpp"
-#include "stack.hpp"
-
-#include <vector>
-#include <map>
-#include <stack>
-
-#include <iostream>
-#include <string>
->>>>>>> 1932ee016e4d8a1fad714c0caeec73433ae721e5
 
 #ifndef NAMESPACE
 # define NAMESPACE ft
 #endif
 
-<<<<<<< HEAD
 template<typename T>
 class MutantStack : public ft::stack<T>
 {
@@ -216,15 +202,3 @@ int	main()
 	return (0);
 }
 */
-=======
-using namespace NAMESPACE;
-
-int	main()
-{
-	vector<int> vec(8, 8);
-
-	for (vector<int>::iterator it = vec.begin(); it != vec.end(); it++)
-		std::cout << *it << std::endl;
-	return (0);
-}
->>>>>>> 1932ee016e4d8a1fad714c0caeec73433ae721e5
