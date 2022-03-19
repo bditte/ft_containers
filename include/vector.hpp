@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2022/03/17 10:22:36 by bditte           ###   ########.fr       */
+/*   Updated: 2022/03/18 14:24:55 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,16 @@ namespace ft
 			else
 			{
 				if (n > this->_capacity)
-					this->reserve(n);
+				{
+					try
+					{				
+						this->reserve(n);
+					}
+					catch(const std::exception& e)
+					{
+						throw std::length_error("vector::_M_fill_insert");
+					}
+				}
 				for (size_type i = this->_size; i < n; i++)
 					this->_allocator.construct(&(this->_array[i]), val);
 				this->_size = n;

@@ -1,10 +1,6 @@
 NAME =	a.out
 
-<<<<<<< HEAD
-SRC =			src/main_test.cpp 
-=======
 SRC =			src/main.cpp 
->>>>>>> 1932ee016e4d8a1fad714c0caeec73433ae721e5
 
 SRCS =			$(addprefix $(DIR_SRCS), $(SRC))
 
@@ -55,13 +51,6 @@ $(NAME) :		$(OBJS)
 %.o: %.cpp
 				@$(CC) $(FLAGS) $(HEADERS) -c $< -o $@
 				@echo "Compiled "$<" successfully!"
-
-std:			$(OBJS)
-			$(CC)  $(HEADERS) $(SRCS) -DNAMESPACE=std -o $(NAME) $(LIBS)
-
-
-ft:			$(OBJS)
-			$(CC)  $(HEADERS) $(SRCS) -DNAMESPACE=ft -o $(NAME) $(LIBS) 
 
 norme:
 				norminette $(DIR_SRCS)
