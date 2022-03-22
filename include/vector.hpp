@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2022/03/18 14:24:55 by bditte           ###   ########.fr       */
+/*   Updated: 2022/03/22 09:11:49 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,22 +94,41 @@ namespace ft
         {
             this->_size = x.size();
             this->_allocator = x._allocator;
-			this->_capacity = x.capacity();
+			this->_capacity = this->_size;
 			try 
             {
-                this->_array = this->_allocator.allocate(x.capacity()); 
+				if (this->_size)
+                	this->_array = this->_allocator.allocate(this->_size); 
             }
             catch (std::exception& e)
             {
                 throw e;
             }
 			for (size_type i = 0; i < this->_size; i++)
-				this->_array[i] = x._array[i];
+				this->_allocator.construct(&this->_array[i], x._array[i]);
         }
 		
 		/* Destructor */
-		~vector() { this->_allocator.deallocate(this->_array, this->_capacity); };
+		~vector() 
+		{
+			if (this->_capacity)
+			{
+				this->destroy_objects();
+				this->_allocator.deallocate(this->_array, this->_capacity);
+			}
+		};
 		
+		vector&		operator=(const vector& rhs)
+		{
+			if (this->_array == rhs._array)
+				return (*this);
+			if (this->_capacity)
+				this->destroy_objects();
+			this->_size = 0;
+			this->assign(rhs.begin(), rhs.end());
+			return (*this);
+		}
+
 		/* Capacity */
         size_type	size(void) const { return (this->_size); };
 		size_type 	max_size() const { return (this->_allocator.max_size()); };
@@ -125,8 +144,11 @@ namespace ft
 				if (n > this->_capacity)
 				{
 					try
-					{				
-						this->reserve(n);
+					{	
+						if (n < this->_capacity * 2)	
+							this->reserve(this->_capacity * 2);
+						else
+							this->reserve(n);
 					}
 					catch(const std::exception& e)
 					{
@@ -150,6 +172,7 @@ namespace ft
 			try
 			{
 				res = this->_allocator.allocate(n);
+				this->_capacity = n;
 			}
 			catch (const std::exception& e)
 			{
@@ -157,11 +180,16 @@ namespace ft
 			}
 			for (size_type i = 0; i < this->_size; i++)
 				this->_allocator.construct(res + i, this->_array[i]);
+			this->destroy_objects();
 			this->_allocator.deallocate(this->_array, this->_capacity);
 			this->_array = res;
-			this->_capacity = n;
 		}
-		bool		empty(void)	const { if (this->_size == 0) {return (true);} return (false); };
+		bool		empty(void)	const 
+		{ 
+			if (this->_size == 0) 
+				return (true);
+			return (false); 
+		}
 		
 		/* Element access */
 		reference		operator[](size_type n) {return (this->_array[n]); };
@@ -207,24 +235,25 @@ namespace ft
 		{
 			InputIterator	tmp = first;
 			size_type		size = 0;
-
+		
 			while (tmp != last)
 			{
 				tmp++;
 				size++;
 			}
+			if (!size)
+				return ;
 			size_type i = 0;
 			while (i < this->_capacity && first != last)
 			{
-				this->_array[i++] = *first;
-				first++;
+				this->_allocator.construct(&this->_array[i++], *first++);
 			}
 			if (size > this->_capacity)
 			{
 				value_type* res;
 				try
 				{
-					if (this->_capacity)
+					if (this->_capacity * 2 > size)
 					{
 						res = this->_allocator.allocate(this->_capacity * 2);
 						this->_capacity *= 2;
@@ -237,13 +266,15 @@ namespace ft
 					for (size_type j = 0; j < size; j++)
 					{
 						if (j < i)
-							this->_allocator.construct(res + j, this->_array[i]);
+						{
+							this->_allocator.construct(res + j, this->_array[j]);
+						}
 						else
 						{
-							this->_allocator.construct(res + j, *first);
-							first++;
+							this->_allocator.construct(res + j, *first++);
 						}
 					}
+					this->destroy_objects();
 					this->_allocator.deallocate(this->_array, this->_capacity);
 					this->_array = res;
 				}
@@ -259,7 +290,7 @@ namespace ft
 			if (n <= this->_capacity)
 			{
 				for (size_type i = 0; i < n; i++)
-					this->_array[i] = val;
+					this->_allocator.construct(&this->_array[i], val);
 				this->_size = n;
 			}
 			else
@@ -274,7 +305,7 @@ namespace ft
 					throw e;
 				}
 				for (size_type i = 0; i < n; i++)
-				this->_allocator.construct(res + i, val);
+					this->_allocator.construct(res + i, val);
 				this->_allocator.deallocate(this->_array, this->_capacity);
 				this->_array = res;
 				this->_capacity = n;
@@ -293,7 +324,7 @@ namespace ft
 				{
 					throw e;
 				}
-				*this->_array = val;
+				this->_allocator.construct(this->_array, val);
 				this->_capacity++;
 				this->_size++;
 				return ;
@@ -303,7 +334,15 @@ namespace ft
 			this->_allocator.construct(&this->_array[this->_size], val);
 			this->_size++;
 		}
-		void				pop_back() { this->_size--; }
+		void				pop_back()
+		{
+			if (!this->_size)
+				return ;
+			this->_allocator.destroy(&this->_array[this->_size - 1]);
+			this->_size--;
+		}
+
+
 		iterator			insert(iterator position, const value_type& val)
 		{
 			if (!this->_capacity)
@@ -395,6 +434,11 @@ namespace ft
 						res = this->_allocator.allocate(n);
 						this->_capacity = n;
 					}
+					else if (this->_size * 2 >= this->_capacity + n)
+					{
+						res = this->_allocator.allocate(this->_size * 2);
+						this->_capacity = this->_size * 2;
+					}
 					else if (this->_capacity * 2 >= this->_capacity + n)
 					{
 						res = this->_allocator.allocate(this->_capacity * 2);
@@ -418,7 +462,7 @@ namespace ft
 						pos++;
 						if (i == this->end())
 						{
-							*position = val;
+							this->_allocator.construct(position.base(), val);
 							pos = this->_size + 2;
 							break ;
 						}
@@ -430,12 +474,13 @@ namespace ft
 				{
 					if (i >= pos && added < n)
 					{
-						res[i] = val;
+						this->_allocator.construct(&res[i], val);
 						added++;
 					}
 					else
-						res[i] = this->_array[j++];
+						this->_allocator.construct(&res[i], this->_array[j++]);
 				}
+				this->destroy_objects();
 				this->_allocator.deallocate(this->_array, this->_capacity);
 				this->_array = res;
 				this->_size += n;
@@ -449,12 +494,12 @@ namespace ft
 				{
 					for (size_type k = 0; k < n; k++)
 					{
-						this->_array[this->_size] = this->_array[this->_size - 1];
+						this->_allocator.construct(&this->_array[this->_size], this->_array[this->_size - 1]);
 						for (size_type j = this->_size - 1; j > i; j--)
 						{
-							this->_array[j] = this->_array[j - 1];
+							this->_allocator.construct(&this->_array[j], this->_array[j - 1]);
 						}
-						this->_array[i] = val;
+						this->_allocator.construct(&this->_array[i], val);
 						this->_size++;
 					}
 					return ;
@@ -506,7 +551,7 @@ namespace ft
 						pos++;
 						if (i == this->end())
 						{
-							*position = *first;
+							this->_allocator.construct(position.base(), *first);
 							pos = this->_size + 2;
 							break ;
 						}
@@ -518,12 +563,13 @@ namespace ft
 				{
 					if (i >= pos && added < n)
 					{
-						res[i] = *(first++);
+						this->_allocator.construct(&res[i], *(first++));
 						added++;
 					}
 					else
-						res[i] = this->_array[j++];
+						this->_allocator.construct(&res[i], this->_array[j++]);
 				}
+				this->destroy_objects();
 				this->_allocator.deallocate(this->_array, this->_capacity);
 				this->_array = res;
 				this->_size += n;
@@ -537,12 +583,12 @@ namespace ft
 				{
 					for (size_type k = 0; k < n; k++)
 					{
-						this->_array[this->_size] = this->_array[this->_size - 1];
+						this->_allocator.construct(&this->_array[this->_size], this->_array[this->_size - 1]);
 						for (size_type j = this->_size - 1; j > i; j--)
 						{
-							this->_array[j] = this->_array[j - 1];
+							this->_allocator.construct(&this->_array[j], this->_array[j - 1]);
 						}
-						this->_array[i] = *(--last);
+						this->_allocator.construct(&this->_array[i], *(--last));
 						this->_size++;
 					}
 					return ;
@@ -596,20 +642,9 @@ namespace ft
 			return ;
 		}
 
-		void			clear() { this->_size = 0; }
+		void			clear() { this->destroy_objects(); this->_size = 0; }
 		/* Allocator */
 		allocator_type get_allocator() const { return (this->_allocator); };
-
-		vector&		operator=(vector& rhs)
-		{
-			this->_allocator.deallocate(this->_array, this->_capacity);
-			this->_size = rhs._size;
-			this->_capacity = rhs._capacity;
-			this->_allocator = rhs._allocator;
-			this->_array = this->_allocator.allocate(this->_size); 
-			this->assign(rhs.begin(), rhs.end());
-			return (*this);
-		}
 
         private:
         
@@ -625,6 +660,12 @@ namespace ft
 			return (ss.str());
 		}
 
+		void		destroy_objects()
+		{
+			for (size_type i = 0; i < this->_size; i++)
+				this->_allocator.destroy(this->_array + i);
+		}
+
     };
 
 	template <class T, class Alloc>
@@ -632,12 +673,7 @@ namespace ft
 	{
 		if (lhs.size() != rhs.size())
 			return (false);
-		for (typename vector<T, Alloc>::size_type i = 0; i < lhs.size(); i++)
-		{
-			if (lhs[i] != rhs[i])
-				return (false);
-		}
-		return (true);
+		return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
 	}
 
 	template <class T, class Alloc>

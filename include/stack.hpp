@@ -20,14 +20,14 @@ public:
 
 	// Member functions
 
-	explicit				stack(const Container& cont = Container()): c(cont)
+	explicit				stack(const container_type& ctnr = container_type()): c(ctnr)
 	{}
 
 	~stack()
-	{}
+	{ }
 
 	stack&					operator=(const stack& other)
-	{ this->_map = other.c; return *this;	}
+	{ this->c = other.c; return *this;	}
 
 	// Element access
 

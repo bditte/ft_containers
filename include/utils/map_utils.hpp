@@ -9,83 +9,6 @@
 namespace ft
 {
 
-//Pair struct
-
-template <class U, class T>
-struct pair
-{
-	typedef U	first_type;
-	typedef T	second_type;
-
-	first_type	first;
-	second_type	second;
-
-	pair():
-		first(),
-		second()
-	{};
-    template <class V, class W>
-	pair(const pair<V, W> &src):
-		first(src.first),
-		second(src.second)
-	{};
-    pair(const pair<U, T> *src):
-		first(src->first),
-		second(src->second)
-	{};
-	pair(const first_type &arg1, const second_type &arg2):
-		first(arg1),
-		second(arg2)
-	{};
-
-	pair	&operator=(const pair &src)
-	{
-		if (this == &src)
-			return (*this);
-        this->first = src.first;
-        this->second = src.second;
-		return (*this);
-	}
-};
-
-template <class T1, class T2>
-pair<T1,T2> make_pair (T1 x, T2 y)
-{
-	return (pair<T1, T2>(x, y));
-}
-
-// Pair operators
-
-template <class U, class T>
-bool operator==(const pair<U, T> &lhs, const pair<U, T> &rhs) {
-	return (lhs.first == rhs.first && lhs.second == rhs.second);
-}
-
-template <class U, class T>
-bool operator!=(const pair<U, T> &lhs, const pair<U, T> &rhs) {
-	return !(lhs == rhs);
-}
-
-template <class U, class T>
-bool operator< (const pair<U, T> &lhs, const pair<U, T> &rhs) {
-	return lhs.first < rhs.first || (!(rhs.first < lhs.first) && lhs.second < rhs.second);
-}
-
-template <class U, class T>
-bool operator<=(const pair<U, T> &lhs, const pair<U, T> &rhs) {
-	return !(rhs < lhs);
-}
-
-template <class U, class T>
-bool operator> (const pair<U, T> &lhs, const pair<U, T> &rhs) {
-	return (rhs < lhs);
-}
-
-template <class U, class T>
-bool operator>=(const pair<U, T> &lhs, const pair<U, T> &rhs) {
-	return !(lhs < rhs);
-}
-
 //Map tree declaration
 
 # define DEFAULT 0
@@ -210,35 +133,45 @@ class tree_node
 };
 
 template <class value_type, class Compare>
-class rbTree
+class AVLTree
 {
     public:
     
-        typedef rbTree<value_type, Compare>             tree_t;
+        typedef AVLTree<value_type, Compare>             tree_t;
         typedef tree_node<value_type, Compare>          node;
         typedef node*                                   node_ptr;
         typedef typename node::key_type                 key_type;
 
     public:
-        rbTree(node_ptr data = NULL): root(data)
+        AVLTree(node_ptr data = NULL): root(data)
         {
             init_tree();
         }
-        rbTree(const rbTree& src): root(src.root)
+        AVLTree(const AVLTree& src): root(src.root)
         {}
-        ~rbTree()
+        ~AVLTree()
         {
             tree_destroy(root);
             return ;
         }
 
-        rbTree&          operator=(const rbTree& rhs)
+        AVLTree&          operator=(const AVLTree& rhs)
         { root = rhs.root; return (*this); }
 
         int              erase(key_type key)
         {
             node_ptr    tmp = search(key);
     
+		/*	std::cout << "key " << key << std::endl;
+			if (root)
+			{
+				std::cout << "root " << root->getKey();
+				if (root->left)
+					std::cout << " left " << root->left->getKey();
+				if (root->right)
+					std::cout << " right " << root->right->getKey();
+				std::cout << std::endl;
+			}*/
             if (!tmp || (tmp && (tmp->pos != DEFAULT || tmp->getKey() != key)))
                 return (0);
             tree_deletion(tmp);
@@ -257,7 +190,7 @@ class rbTree
             if (tmp->getKey() == data.first)
                 return ;
             node_ptr new_node = new node(data);
-
+				
             new_node->parent = tmp;
             node_ptr    last_node = NULL; // Past the end node or node before the first one
 
@@ -408,7 +341,7 @@ class rbTree
 
         void            tree_deletion(node_ptr node)
         {
-            int side;
+            int side = 0;
             node_ptr ancestor = node->parent;
  
             if (node->left == NULL && node->right == NULL)
@@ -471,7 +404,10 @@ class rbTree
                     tmp = node->left;
                 else
                     tmp = node->right->node_min();
-                ancestor = tmp->parent;
+				if (tmp->parent == node)
+					ancestor = tmp;
+				else
+                	ancestor = tmp->parent;
                 if (tmp->is_left_child())
                     side = 1;
                 else if (node->parent)
@@ -494,7 +430,6 @@ class rbTree
                 rebalance(node);
                 return ;
             }
-
             if (node->parent)
             {
                 if (node == node->parent->left)
@@ -610,29 +545,30 @@ class rbTree
         
         }
 
-        node_ptr       change_node_data(node_ptr old, node_ptr src)
+        node_ptr       change_node_data(node_ptr old, node_ptr dst)
         {
-            if (src->is_left_child())
+            if (dst->is_left_child())
             {
-                src->parent->left = src->left;
+                dst->parent->left = dst->left;
             }
-            else if (src->parent)
-                src->parent->right = src->right;
+            else if (dst->parent)
+                dst->parent->right = dst->right;
             
-            src->parent = old->parent;
+            dst->parent = old->parent;
             if (old->is_left_child())
-                old->parent->left = src;
+                old->parent->left = dst;
             else if (old->parent)
-                old->parent->right = src;
+                old->parent->right = dst;
 
-            src->left = old->left;
-            src->right = old->right;
-            if (src->left)
-                src->left->parent = src;
-            if (src->right)
-                src->right->parent = src;
+            dst->left = old->left;
+            dst->right = old->right;
+            if (dst->left)
+                dst->left->parent = dst;
+            if (dst->right)
+                dst->right->parent = dst;
+			dst->balance = old->balance;
             delete old;
-            return (src);
+            return (dst);
         }
 
         bool            compare_nodes(node_ptr a, node_ptr b) const

@@ -26,7 +26,7 @@ namespace ft
 		private:
 
 		typedef	ft::tree_node<value_type, key_compare >			node_type;
-		typedef ft::rbTree<value_type, key_compare>				tree;			
+		typedef ft::AVLTree<value_type, key_compare>				tree;			
 		
 		public:
 
@@ -306,6 +306,13 @@ namespace ft
 			size_type				_size;
 			size_type				_max_size;
 	};
+
+	template <class Key, class T, class Compare, class Alloc>
+  	void	swap (map<Key,T,Compare,Alloc>& x, map<Key,T,Compare,Alloc>& y)
+	{
+		x.swap(y);
+	}
+
 
 	template <class Key, class T, class Compare, class Alloc>
 	bool	operator==(const map<Key,T,Compare,Alloc>& lhs,

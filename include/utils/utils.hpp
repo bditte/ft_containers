@@ -11,6 +11,83 @@
 
 namespace ft 
 {
+	//Pair
+
+	template <class U, class T>
+	struct pair
+	{
+		typedef U	first_type;
+		typedef T	second_type;
+
+		first_type	first;
+		second_type	second;
+
+		pair():
+			first(),
+			second()
+		{};
+		template <class V, class W>
+		pair(const pair<V, W> &src):
+			first(src.first),
+			second(src.second)
+		{};
+		pair(const pair<U, T> *src):
+			first(src->first),
+			second(src->second)
+		{};
+		pair(const first_type &arg1, const second_type &arg2):
+			first(arg1),
+			second(arg2)
+		{};
+
+		pair	&operator=(const pair &src)
+		{
+			if (this == &src)
+				return (*this);
+			this->first = src.first;
+			this->second = src.second;
+			return (*this);
+		}
+	};
+
+	template <class T1, class T2>
+	pair<T1,T2> make_pair (T1 x, T2 y)
+	{
+		return (pair<T1, T2>(x, y));
+	}
+
+	// Pair operators
+
+	template <class U, class T>
+	bool operator==(const pair<U, T> &lhs, const pair<U, T> &rhs) {
+		return (lhs.first == rhs.first && lhs.second == rhs.second);
+	}
+
+	template <class U, class T>
+	bool operator!=(const pair<U, T> &lhs, const pair<U, T> &rhs) {
+		return !(lhs == rhs);
+	}
+
+	template <class U, class T>
+	bool operator< (const pair<U, T> &lhs, const pair<U, T> &rhs) {
+		return lhs.first < rhs.first || (!(rhs.first < lhs.first) && lhs.second < rhs.second);
+	}
+
+	template <class U, class T>
+	bool operator<=(const pair<U, T> &lhs, const pair<U, T> &rhs) {
+		return !(rhs < lhs);
+	}
+
+	template <class U, class T>
+	bool operator> (const pair<U, T> &lhs, const pair<U, T> &rhs) {
+		return (rhs < lhs);
+	}
+
+	template <class U, class T>
+	bool operator>=(const pair<U, T> &lhs, const pair<U, T> &rhs) {
+		return !(lhs < rhs);
+	}
+
 	template < bool Cond, class T = void>
 	struct enable_if {};
 

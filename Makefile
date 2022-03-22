@@ -1,4 +1,6 @@
-NAME =	a.out
+NAME =	ft_outpout
+
+STD_NAME = std_outpout
 
 SRC =			src/main.cpp 
 
@@ -43,7 +45,10 @@ FLAGS =			-Wall -Werror -Wextra -std=c++98
 
 
 
-all:			$(NAME) $(BONUS)
+all:			$(NAME) std $(BONUS)
+
+std:			clean $(OBJS)
+			$(CC)  $(HEADERS) $(SRCS) -D STD=1 -o $(STD_NAME) $(LIBS) 
 
 $(NAME) :		$(OBJS)
 			$(CC)  $(HEADERS) $(SRCS) -o $(NAME) $(LIBS) 
@@ -60,7 +65,7 @@ clean:
 			$(RM) $(OBJS)
 
 fclean:		clean
-			$(RM) $(NAME)
+			$(RM) $(NAME) $(STD_NAME)
 
 re:			fclean all
 

@@ -23,7 +23,11 @@ struct Buffer
 #include "vector.hpp"
 #include "stack.hpp"
 
-#define COUNT		3
+#define COUNT		300000
+
+#ifndef STD
+#  define STD 0
+#endif
 
 #include <iostream>
 #include <string>
@@ -65,7 +69,6 @@ double ft_tests(const int seed)
 	{
 		vector_buffer.push_back(Buffer());
 	}
-	std::cout << COUNT << " " << vector_buffer.size() << " " << vector_buffer.capacity()<<std::endl;
 	for (int i = 0; i < COUNT; i++)
 	{
 		const int idx = rand() % COUNT;
@@ -155,7 +158,6 @@ double std_tests(const int seed) {
 	{
 		vector_buffer.push_back(Buffer());
 	}
-	std::cout << COUNT << " " << vector_buffer.size() << " "<< vector_buffer.capacity()<<std::endl;
 	for (int i = 0; i < COUNT; i++)
 	{
 		const int idx = rand() % COUNT;
@@ -181,7 +183,6 @@ double std_tests(const int seed) {
 	{
 		map_int.insert(std::make_pair(rand(), rand()));
 	}
-	std::cout << "size " << map_int.size() << std::endl;
 	int sum = 0;
 	for (int i = 0; i < 10000; i++)
 	{
@@ -218,16 +219,23 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	const int seed = atoi(argv[1]);
+	
+	double std_time = 0;
+	double ft_time = 0;
 
-	double std_time = std_tests(seed);
-	double ft_time = ft_tests(seed);
-	double ratio = ft_time / std_time;
+	if (STD == 1)
+		std_time = std_tests(seed);
+	else 
+		std_time = ft_tests(seed);
+	(void)std_time;
+	(void)ft_time;
+	/*double ratio = ft_time / std_time;
 	
 	if (ratio > 20)
 		std::cout << "\033[1;31m[KO] : ft containers are " << ratio << "times slower." << std::endl;
 	else if (ratio > 0)
 		std::cout << "\033[1;32m[OK] : ft containers are " << ratio << "times slower." << std::endl;
 	else
-		std::cout << "\033[1;32m[GG] : ft containers are " << std_time / ft_time << "times faster." << std::endl;
+		std::cout << "\033[1;32m[GG] : ft containers are " << std_time / ft_time << "times faster." << std::endl;*/
 	return (0);
 }
