@@ -124,11 +124,6 @@ class tree_node
 
         mapped_type     getValue() const
         { return (data.second); }
-    
-    private:
-
-        bool            compare_keys(key_type a, key_type b)
-        { Compare comp; return (comp(a, b)); }
 
 };
 
@@ -142,8 +137,7 @@ class AVLTree
         typedef node*                                   node_ptr;
         typedef typename node::key_type                 key_type;
 
-    public:
-        AVLTree(node_ptr data = NULL): root(data)
+        AVLTree(Compare comp = Compare(), node_ptr data = NULL): comp(comp), root(data)
         {
             init_tree();
         }
@@ -162,16 +156,6 @@ class AVLTree
         {
             node_ptr    tmp = search(key);
     
-		/*	std::cout << "key " << key << std::endl;
-			if (root)
-			{
-				std::cout << "root " << root->getKey();
-				if (root->left)
-					std::cout << " left " << root->left->getKey();
-				if (root->right)
-					std::cout << " right " << root->right->getKey();
-				std::cout << std::endl;
-			}*/
             if (!tmp || (tmp && (tmp->pos != DEFAULT || tmp->getKey() != key)))
                 return (0);
             tree_deletion(tmp);
@@ -572,12 +556,12 @@ class AVLTree
         }
 
         bool            compare_nodes(node_ptr a, node_ptr b) const
-        { Compare comp; return (comp(a->getKey(), b->getKey())); }
+        { return (comp(a->getKey(), b->getKey())); }
 
         bool            compare_keys(key_type a, key_type b) const
-        { Compare comp; return (comp(a, b)); }
+        { return (comp(a, b)); }
 
-
+		Compare				comp;
         node_ptr            root;
 };
 

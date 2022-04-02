@@ -2,7 +2,7 @@ NAME =	ft_outpout
 
 STD_NAME = std_outpout
 
-SRC =			src/main.cpp 
+SRC =			src/main_test.cpp 
 
 SRCS =			$(addprefix $(DIR_SRCS), $(SRC))
 
@@ -45,10 +45,10 @@ FLAGS =			-Wall -Werror -Wextra -std=c++98
 
 
 
-all:			$(NAME) std $(BONUS)
+all:			$(NAME) #std $(BONUS)
 
 std:			clean $(OBJS)
-			$(CC)  $(HEADERS) $(SRCS) -D STD=1 -o $(STD_NAME) $(LIBS) 
+				$(CC)  $(HEADERS) $(SRCS) -D STD=1 -o $(STD_NAME) $(LIBS) 
 
 $(NAME) :		$(OBJS)
 			$(CC)  $(HEADERS) $(SRCS) -o $(NAME) $(LIBS) 

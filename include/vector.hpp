@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2022/03/22 09:11:49 by bditte           ###   ########.fr       */
+/*   Updated: 2022/03/26 14:55:28 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,7 +242,13 @@ namespace ft
 				size++;
 			}
 			if (!size)
-				return ;
+			{
+				clear();
+				if (this->_capacity)
+					this->_allocator.deallocate(this->_array, this->_capacity),
+				this->_array = NULL;
+				_capacity = 0;	
+			}
 			size_type i = 0;
 			while (i < this->_capacity && first != last)
 			{
@@ -251,17 +257,18 @@ namespace ft
 			if (size > this->_capacity)
 			{
 				value_type* res;
+				size_type 	new_capacity = 0;
 				try
 				{
 					if (this->_capacity * 2 > size)
 					{
 						res = this->_allocator.allocate(this->_capacity * 2);
-						this->_capacity *= 2;
+						new_capacity = this->_capacity * 2;
 					}
 					else
 					{
 						res = this->_allocator.allocate(size);
-						this->_capacity = size;
+						new_capacity = size;
 					}
 					for (size_type j = 0; j < size; j++)
 					{
@@ -275,7 +282,9 @@ namespace ft
 						}
 					}
 					this->destroy_objects();
-					this->_allocator.deallocate(this->_array, this->_capacity);
+					if (this->_capacity)
+						this->_allocator.deallocate(this->_array, this->_capacity);
+					this->_capacity = new_capacity;
 					this->_array = res;
 				}
 				catch (const std::exception& e)

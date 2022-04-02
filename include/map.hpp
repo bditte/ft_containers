@@ -26,7 +26,7 @@ namespace ft
 		private:
 
 		typedef	ft::tree_node<value_type, key_compare >			node_type;
-		typedef ft::AVLTree<value_type, key_compare>				tree;			
+		typedef ft::AVLTree<value_type, key_compare>			tree;			
 		
 		public:
 
@@ -62,7 +62,7 @@ namespace ft
 
 		explicit	map(const key_compare& comp = key_compare(),
 						const allocator_type& alloc = allocator_type() ):
-			_tree(tree()),
+			_tree(comp),
 			_comp(comp),
 			_alloc(alloc),
 			_size(0),
@@ -74,7 +74,7 @@ namespace ft
 					 		InputIterator last,
 							const key_compare& comp = key_compare(),
 							const allocator_type& alloc = allocator_type()):
-			_tree(tree()),
+			_tree(comp),
 			_comp(comp),
 			_alloc(alloc),
 			_size(0),
