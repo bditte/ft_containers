@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2022/03/26 14:55:28 by bditte           ###   ########.fr       */
+/*   Updated: 2022/04/05 18:31:23 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -356,13 +356,6 @@ namespace ft
 		{
 			if (!this->_capacity)
 			{
-				for (iterator i = this->begin(); i != position; i++)
-				{
-					if (i == this->end())
-					{
-						*position = val;
-					}
-				}
 				try
 				{
 					this->_array = this->_allocator.allocate(1);
@@ -371,9 +364,10 @@ namespace ft
 				{
 					throw e;
 				}
-				*this->_array = val;
+				this->_allocator.construct(this->_array, val);
 				this->_capacity++;
 				this->_size++;
+				return (iterator(this->_array));
 			}
 			else if (this->_size == this->_capacity)
 			{
@@ -391,6 +385,7 @@ namespace ft
 				try
 				{
 					res = this->_allocator.allocate(this->_capacity * 2);
+					this->_capacity *= 2;
 				}
 				catch(const std::exception& e)
 				{
@@ -400,13 +395,14 @@ namespace ft
 				for (size_type i = 0; i <= this->_size; i++)
 				{
 					if (i == pos)
-						res[i] = val;
+					{
+						this->_allocator.construct(&res[i], val);
+					}
 					else
-						res[i] = this->_array[j++];
+						this->_allocator.construct(&res[i], this->_array[j++]);
 				}
 				this->_allocator.deallocate(this->_array, this->_capacity);
 				this->_array = res;
-				this->_capacity *= 2;;
 				this->_size++;
 				if (pos > this->_size)
 					return (position);
@@ -418,10 +414,10 @@ namespace ft
 				{
 					if (iterator(this->_array + i) == position)
 					{
-						this->_array[this->_size] = this->_array[this->_size - 1];
+						this->_allocator.construct(&this->_array[this->_size], this->_array[this->_size - 1]);
 						for (size_type j = this->_size - 1; j > i; j--)
 						{
-							this->_array[j] = this->_array[j - 1];
+							this->_allocator.construct(&this->_array[j], this->_array[j - 1]);
 						}
 						this->_array[i] = val;
 						this->_size++;
@@ -433,6 +429,7 @@ namespace ft
 		}
 		void				insert(iterator position, size_type n, const value_type& val)
 		{
+			std::cout << "SIZE " << n << std::endl;
 			if (this->_size + n > this->_capacity)
 			{
 				value_type*	res;

@@ -5,7 +5,7 @@
 # include "utils/utils.hpp"
 # include "utils/iterator.hpp"
 
-# define MAX_SIZE  allocator_type().max_size() / (sizeof(node_type))
+# define MAX_SIZE  node_allocator().max_size() / (sizeof(node_type))
 
 namespace ft
 {
@@ -13,21 +13,22 @@ namespace ft
 		class Key,
 		class T,
 		class Compare = std::less<Key>,
-		class Allocator = std::allocator<std::pair<const Key, T> >
+		class Allocator = std::allocator<ft::pair<const Key, T> >
 	> class map
 	{
 		public:
 
 		typedef	Key												key_type;
 		typedef	T												mapped_type;
-		typedef	pair<const Key, mapped_type>					value_type;
+		typedef	ft::pair<const Key, mapped_type>				value_type;
 		typedef	Compare											key_compare;
 
 		private:
 
 		typedef	ft::tree_node<value_type, key_compare >			node_type;
 		typedef ft::AVLTree<value_type, key_compare>			tree;			
-		
+		typedef std::allocator<node_type>						node_allocator;
+
 		public:
 
 		typedef	Allocator										allocator_type;
@@ -162,7 +163,7 @@ namespace ft
 		}
 
 		void				erase(iterator position)
-		{ this->erase(position->first); }
+		{ this->erase(position->first);  }
 
 		size_type			erase(const key_type &k)
 		{

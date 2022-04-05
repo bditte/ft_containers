@@ -199,7 +199,6 @@ class AVLTree
                 new_node->right = last_node;
             }
             balance_tree(new_node);
-            
         }
         
         node_ptr        find(key_type key) const
@@ -296,7 +295,7 @@ class AVLTree
 
         node_ptr        end() const
         {
-            if (root->pos == LAST)
+            if (root->pos != DEFAULT)
                 return (root);
             return (maximum()->right);
         }
@@ -314,7 +313,34 @@ class AVLTree
             root = tmp;
         }
 
+        void            display() const
+        {
+            print_tree("", root, false);
+        }
+
     private:
+
+        void            print_tree(const std::string& prefix, node_ptr node, bool isLeft) const
+        {
+            if ( node != NULL )
+            {
+                std::cout << prefix;
+
+                std::cout << (isLeft ? "├──" : "└──" );
+
+                // print the value of the node
+                if (node->pos == DEFAULT)
+                    std::cout << node->getKey() << std::endl;
+                else if (node->pos == FIRST)
+                    std::cout << "BEGIN" << std::endl;
+                else
+                    std::cout << "END" << std::endl;
+
+                // enter the next tree level - left and right branch
+                print_tree( prefix + (isLeft ? "│   " : "    "), node->left, true);
+                print_tree( prefix + (isLeft ? "│   " : "    "), node->right, false);
+            }            
+        }
 
         void            init_tree()
         {
@@ -325,7 +351,7 @@ class AVLTree
 
         void            tree_deletion(node_ptr node)
         {
-            int side = 0;
+            int side = 0;   // side == 1 means left node is deleted, side == -1 means right node is deleted
             node_ptr ancestor = node->parent;
  
             if (node->left == NULL && node->right == NULL)
@@ -390,7 +416,7 @@ class AVLTree
                     tmp = node->right->node_min();
 				if (tmp->parent == node)
 					ancestor = tmp;
-				else
+                else
                 	ancestor = tmp->parent;
                 if (tmp->is_left_child())
                     side = 1;
@@ -402,8 +428,56 @@ class AVLTree
             }
             if (ancestor)
                 ancestor->balance += side;
-            balance_tree(ancestor);
+            deletion_balance_tree(ancestor);
         }
+
+        void            deletion_balance_tree(node_ptr node)
+        {
+            if (!node)
+                return ;
+            if (node->balance < -1 || node->balance > 1)
+            {
+                rebalance(node);
+                return ;
+            }
+            if (node->parent)
+            {
+                if (node == node->parent->left)
+                    node->parent->balance++;
+
+                if (node == node->parent->right)
+                    node->parent->balance--;
+
+                if (node->parent->balance != 0)
+                    deletion_balance_tree(node->parent);
+            }
+
+        }
+/*
+        void            deletion_rebalance(node_ptr node)
+        {
+            if (node->balance > 0)
+            {
+                if (node->left && node->left->balance < 0 && node->left->pos == DEFAULT)
+                {
+                    right_rotate(node->left);
+                    left_rotate(node);
+                }
+                else if (node->left && node->left->balance >= 0 && node->left->pos == DEFAULT)
+                    left_rotate(node);
+            }
+            if (node->balance < 0)
+            {
+                if (node->right && node->right->balance < 0 && node->right->pos == DEFAULT)
+                {
+                    left_rotate(node->right);
+                    right_rotate(node);
+                }
+                else if (node->right && node->right->balance >= 0 && node->right->pos == DEFAULT)
+                    right_rotate(node);
+            }
+        }
+        */
 
         void            balance_tree(node_ptr node)
         {
@@ -431,22 +505,22 @@ class AVLTree
         {
             if (node->balance > 0)
             {
-                if (node->right->balance < 0 && node->right->pos == DEFAULT)
+                if (node->right && node->right->balance < 0 && node->right->pos == DEFAULT)
                 {
                     right_rotate(node->right);
                     left_rotate(node);
                 }
-                else
+                else if (node->right && node->right->pos == DEFAULT)
                     left_rotate(node);
             }
             else if (node->balance < 0)
             {
-                if (node->left->balance > 0 && node->left->pos == DEFAULT)
+                if (node->left && node->left->balance > 0 && node->left->pos == DEFAULT)
                 {
                     left_rotate(node->left);
                     right_rotate(node);
                 }
-                else
+                else if (node->left && node->left->pos == DEFAULT)
                     right_rotate(node);
             }
         }
@@ -476,8 +550,8 @@ class AVLTree
         void            left_rotate(node_ptr node)
         {
             node_ptr y = node->right;
-            node->right = y->left;
-
+            node->right = (y != NULL) ? y->left : NULL;
+            
             if (y->left != NULL)
                 y->left->parent = node;
             
@@ -516,6 +590,7 @@ class AVLTree
                 tmp->left = root;
                 root->parent = tmp;
                 tmp->right = root->right;
+                root->right->parent = tmp;
                 root->right = NULL;
                 root = tmp;
                 return ;
@@ -523,6 +598,7 @@ class AVLTree
             tmp->right = root;
             root->parent = tmp;
             tmp->left = root->left;
+            root->left->parent = tmp;
             root->left = NULL;
             root = tmp;
             return ;
