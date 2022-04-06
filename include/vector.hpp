@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2022/04/05 18:31:23 by bditte           ###   ########.fr       */
+/*   Updated: 2022/04/06 13:54:40 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -354,252 +354,49 @@ namespace ft
 
 		iterator			insert(iterator position, const value_type& val)
 		{
-			if (!this->_capacity)
-			{
-				try
-				{
-					this->_array = this->_allocator.allocate(1);
-				}
-				catch(const std::exception& e)
-				{
-					throw e;
-				}
-				this->_allocator.construct(this->_array, val);
-				this->_capacity++;
-				this->_size++;
-				return (iterator(this->_array));
-			}
-			else if (this->_size == this->_capacity)
-			{
-				size_type	pos = 0;
-				for (iterator i = this->begin(); i != position; i++)
-				{
-					pos++;
-					if (i == this->end())
-					{
-						*position = val;
-						pos = this->_size + 2;
-					}
-				}
-				value_type* res;
-				try
-				{
-					res = this->_allocator.allocate(this->_capacity * 2);
-					this->_capacity *= 2;
-				}
-				catch(const std::exception& e)
-				{
-					throw e;
-				}
-				int j = 0;
-				for (size_type i = 0; i <= this->_size; i++)
-				{
-					if (i == pos)
-					{
-						this->_allocator.construct(&res[i], val);
-					}
-					else
-						this->_allocator.construct(&res[i], this->_array[j++]);
-				}
-				this->_allocator.deallocate(this->_array, this->_capacity);
-				this->_array = res;
-				this->_size++;
-				if (pos > this->_size)
-					return (position);
-				return (iterator(this->_array + pos));
-			}
-			else
-			{
-				for (size_type i = 0; i <= this->_size; i++)
-				{
-					if (iterator(this->_array + i) == position)
-					{
-						this->_allocator.construct(&this->_array[this->_size], this->_array[this->_size - 1]);
-						for (size_type j = this->_size - 1; j > i; j--)
-						{
-							this->_allocator.construct(&this->_array[j], this->_array[j - 1]);
-						}
-						this->_array[i] = val;
-						this->_size++;
-						return (position);
-					}
-				}
-			}
-			return position;
+			difference_type		diff = position - begin();
+
+			insert(position, 1, val);
+			return (iterator(begin() + diff));
 		}
+		
 		void				insert(iterator position, size_type n, const value_type& val)
 		{
-			std::cout << "SIZE " << n << std::endl;
-			if (this->_size + n > this->_capacity)
-			{
-				value_type*	res;
-				try
-				{
-					if (!this->_capacity)
-					{
-						res = this->_allocator.allocate(n);
-						this->_capacity = n;
-					}
-					else if (this->_size * 2 >= this->_capacity + n)
-					{
-						res = this->_allocator.allocate(this->_size * 2);
-						this->_capacity = this->_size * 2;
-					}
-					else if (this->_capacity * 2 >= this->_capacity + n)
-					{
-						res = this->_allocator.allocate(this->_capacity * 2);
-						this->_capacity *= 2;
-					}
-					else
-					{
-						res = this->_allocator.allocate(this->_capacity + n);
-						this->_capacity += n;
-					}
-				}
-				catch(const std::exception& e)
-				{
-					std::cerr << e.what() << '\n';
-				}
-				size_type	pos = 0;
-				if (this->_size)
-				{
-					for (iterator i = this->begin(); i != position; i++)
-					{
-						pos++;
-						if (i == this->end())
-						{
-							this->_allocator.construct(position.base(), val);
-							pos = this->_size + 2;
-							break ;
-						}
-					}
-				}
-				int j = 0;
-				size_type	added = 0;
-				for (size_type i = 0; i < this->_size + n; i++)
-				{
-					if (i >= pos && added < n)
-					{
-						this->_allocator.construct(&res[i], val);
-						added++;
-					}
-					else
-						this->_allocator.construct(&res[i], this->_array[j++]);
-				}
-				this->destroy_objects();
-				this->_allocator.deallocate(this->_array, this->_capacity);
-				this->_array = res;
-				this->_size += n;
-				if (pos > this->_size)
-					return ;
-				return ;								
-			}
-			for (size_type i = 0; i <= this->_size; i++)
-			{
-				if (iterator(this->_array + i) == position)
-				{
-					for (size_type k = 0; k < n; k++)
-					{
-						this->_allocator.construct(&this->_array[this->_size], this->_array[this->_size - 1]);
-						for (size_type j = this->_size - 1; j > i; j--)
-						{
-							this->_allocator.construct(&this->_array[j], this->_array[j - 1]);
-						}
-						this->_allocator.construct(&this->_array[i], val);
-						this->_size++;
-					}
-					return ;
-				}
-			}		
+			difference_type diff = position - begin();
+
+			this->resize(this->_size + n);
+
+			iterator end = this->end();
+			position = begin() + diff;
+			iterator last = begin() + (this->_size - n);
+			
+			while (last != position)
+				*--end = *--last;
+			while (n-- > 0)
+				*position++ = val;
 		}
+		
 		template <class InputIterator>
     	void insert (iterator position,
 					typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first,
 					InputIterator last)
 		{
-			size_type n = 0;
-			InputIterator tmp = first;
-			while (tmp != last)
-			{
-				tmp ++;
-				n++;
-			}
-			if (this->_size + n > this->_capacity)
-			{
-				value_type*	res;
-				try
-				{
-					if (this->_capacity == 0)
-					{
-						res = this->_allocator.allocate(n);
-						this->_capacity = n;
-					}
-					else if (this->_capacity * 2 >= this->_capacity + n)
-					{
-						res = this->_allocator.allocate(this->_capacity * 2);
-						this->_capacity *= 2;
-					}
-					else
-					{
-						res = this->_allocator.allocate(this->_capacity + n);
-						this->_capacity += n;
-					}
-				}
-				catch(const std::exception& e)
-				{
-					std::cerr << e.what() << '\n';
-				}
-				size_type	pos = 0;
-				if (this->_size)
-				{
-					for (iterator i = this->begin(); i != position; i++)
-					{
-						pos++;
-						if (i == this->end())
-						{
-							this->_allocator.construct(position.base(), *first);
-							pos = this->_size + 2;
-							break ;
-						}
-					}
-				}
-				int j = 0;
-				size_type	added = 0;
-				for (size_type i = 0; i < this->_size + n; i++)
-				{
-					if (i >= pos && added < n)
-					{
-						this->_allocator.construct(&res[i], *(first++));
-						added++;
-					}
-					else
-						this->_allocator.construct(&res[i], this->_array[j++]);
-				}
-				this->destroy_objects();
-				this->_allocator.deallocate(this->_array, this->_capacity);
-				this->_array = res;
-				this->_size += n;
-				if (pos > this->_size)
-					return ;
-				return ;								
-			}
-			for (size_type i = 0; i <= this->_size; i++)
-			{
-				if (iterator(this->_array + i) == position)
-				{
-					for (size_type k = 0; k < n; k++)
-					{
-						this->_allocator.construct(&this->_array[this->_size], this->_array[this->_size - 1]);
-						for (size_type j = this->_size - 1; j > i; j--)
-						{
-							this->_allocator.construct(&this->_array[j], this->_array[j - 1]);
-						}
-						this->_allocator.construct(&this->_array[i], *(--last));
-						this->_size++;
-					}
-					return ;
-				}
-			}	
+			difference_type diff = position - begin();
+			size_type 		size = 0;
+
+			for (InputIterator it = first; it != last; it++)
+				size++;
+			
+			this->resize(this->_size + size);
+
+			iterator end = this->end();
+			position = begin() + diff;
+			iterator last_val = begin() + (this->_size - size);
+			
+			while (last_val != position)
+				*--end = *--last_val;
+			while (size-- > 0)
+				*position++ = *first++;
 		}
 		
 		iterator 			erase(iterator position)

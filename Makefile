@@ -2,7 +2,7 @@ NAME =	ft_outpout
 
 STD_NAME = std_outpout
 
-SRC =			src/main_test.cpp 
+SRC =			src/main.cpp 
 
 SRCS =			$(addprefix $(DIR_SRCS), $(SRC))
 

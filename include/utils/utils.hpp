@@ -31,9 +31,9 @@ namespace ft
 			first(src.first),
 			second(src.second)
 		{};
-		pair(const pair<U, T> *src):
-			first(src->first),
-			second(src->second)
+		pair(const pair<U, T> &src):
+			first(src.first),
+			second(src.second)
 		{};
 		pair(const first_type &arg1, const second_type &arg2):
 			first(arg1),

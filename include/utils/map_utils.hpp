@@ -132,7 +132,7 @@ class AVLTree
 {
     public:
     
-        typedef AVLTree<value_type, Compare>             tree_t;
+        typedef AVLTree<value_type, Compare>            tree_t;
         typedef tree_node<value_type, Compare>          node;
         typedef node*                                   node_ptr;
         typedef typename node::key_type                 key_type;
@@ -162,7 +162,7 @@ class AVLTree
             return (1);
         }
 
-        void            insert(value_type   data)
+        void            insert(const value_type&   data)
         {
             if (root->pos != DEFAULT)
             {
@@ -173,7 +173,8 @@ class AVLTree
             node_ptr tmp = search(data.first);
             if (tmp->getKey() == data.first)
                 return ;
-            node_ptr new_node = new node(data);
+            node_ptr new_node = alloc.allocate(1);
+            alloc.construct(new_node, node(data));
 				
             new_node->parent = tmp;
             node_ptr    last_node = NULL; // Past the end node or node before the first one
@@ -313,39 +314,16 @@ class AVLTree
             root = tmp;
         }
 
-        void            display() const
-        {
-            print_tree("", root, false);
-        }
-
     private:
-
-        void            print_tree(const std::string& prefix, node_ptr node, bool isLeft) const
-        {
-            if ( node != NULL )
-            {
-                std::cout << prefix;
-
-                std::cout << (isLeft ? "├──" : "└──" );
-
-                // print the value of the node
-                if (node->pos == DEFAULT)
-                    std::cout << node->getKey() << std::endl;
-                else if (node->pos == FIRST)
-                    std::cout << "BEGIN" << std::endl;
-                else
-                    std::cout << "END" << std::endl;
-
-                // enter the next tree level - left and right branch
-                print_tree( prefix + (isLeft ? "│   " : "    "), node->left, true);
-                print_tree( prefix + (isLeft ? "│   " : "    "), node->right, false);
-            }            
-        }
 
         void            init_tree()
         {
-            root = new node(value_type(), LAST);
-            root->left = new node(value_type(), FIRST);
+            root = alloc.allocate(1);
+            alloc.construct(root, node(value_type(), LAST));
+
+            root->left = alloc.allocate(1);
+            alloc.construct(root->left, node(value_type(), FIRST));
+        
             root->left->parent = root;
         }
 
@@ -366,7 +344,7 @@ class AVLTree
                     node->parent->right = NULL;
                     side = -1;
                 }
-                delete node;
+                alloc.destroy(node);
                 node = NULL;
             }
             else if (node->left == NULL)
@@ -386,7 +364,7 @@ class AVLTree
                     parent->right = node;
                     side = -1;
                 }
-                delete tmp;
+                alloc.destroy(tmp);
             }
             else if (node->right == NULL)
             {
@@ -405,7 +383,7 @@ class AVLTree
                     parent->right = node;
                     side = -1;
                 }
-                delete tmp;
+                alloc.destroy(tmp);
             }
             else
             {
@@ -453,31 +431,6 @@ class AVLTree
             }
 
         }
-/*
-        void            deletion_rebalance(node_ptr node)
-        {
-            if (node->balance > 0)
-            {
-                if (node->left && node->left->balance < 0 && node->left->pos == DEFAULT)
-                {
-                    right_rotate(node->left);
-                    left_rotate(node);
-                }
-                else if (node->left && node->left->balance >= 0 && node->left->pos == DEFAULT)
-                    left_rotate(node);
-            }
-            if (node->balance < 0)
-            {
-                if (node->right && node->right->balance < 0 && node->right->pos == DEFAULT)
-                {
-                    left_rotate(node->right);
-                    right_rotate(node);
-                }
-                else if (node->right && node->right->balance >= 0 && node->right->pos == DEFAULT)
-                    right_rotate(node);
-            }
-        }
-        */
 
         void            balance_tree(node_ptr node)
         {
@@ -577,13 +530,14 @@ class AVLTree
             tree_destroy(node->left);
             tree_destroy(node->right);
 
-            delete node;
+            alloc.destroy(node);
             node = NULL;
         }
 
         void            insert_empty_tree(value_type data)
         {
-            node_ptr tmp = new node(data);
+            node_ptr tmp = alloc.allocate(1);
+            alloc.construct(tmp, node(data));
 
             if (root->pos == FIRST)
             {
@@ -627,7 +581,7 @@ class AVLTree
             if (dst->right)
                 dst->right->parent = dst;
 			dst->balance = old->balance;
-            delete old;
+            alloc.destroy(old);
             return (dst);
         }
 
@@ -637,8 +591,9 @@ class AVLTree
         bool            compare_keys(key_type a, key_type b) const
         { return (comp(a, b)); }
 
-		Compare				comp;
-        node_ptr            root;
+		Compare				        comp;
+        node_ptr                    root;
+        std::allocator<node>        alloc;
 };
 
 
