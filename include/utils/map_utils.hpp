@@ -344,7 +344,7 @@ class AVLTree
                     node->parent->right = NULL;
                     side = -1;
                 }
-                alloc.destroy(node);
+                alloc.deallocate(node, 1);
                 node = NULL;
             }
             else if (node->left == NULL)
@@ -364,7 +364,7 @@ class AVLTree
                     parent->right = node;
                     side = -1;
                 }
-                alloc.destroy(tmp);
+                alloc.deallocate(tmp, 1);
             }
             else if (node->right == NULL)
             {
@@ -383,7 +383,7 @@ class AVLTree
                     parent->right = node;
                     side = -1;
                 }
-                alloc.destroy(tmp);
+                alloc.deallocate(tmp, 1);
             }
             else
             {
@@ -530,7 +530,7 @@ class AVLTree
             tree_destroy(node->left);
             tree_destroy(node->right);
 
-            alloc.destroy(node);
+            alloc.deallocate(node, 1);
             node = NULL;
         }
 
@@ -581,7 +581,7 @@ class AVLTree
             if (dst->right)
                 dst->right->parent = dst;
 			dst->balance = old->balance;
-            alloc.destroy(old);
+            alloc.deallocate(old, 1);
             return (dst);
         }
 

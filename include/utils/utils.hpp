@@ -49,6 +49,40 @@ namespace ft
 			return (*this);
 		}
 	};
+	/*
+
+		iterator			insert(iterator position, const value_type& val)
+		{
+			difference_type		diff = position - begin();
+
+			insert(position, 1, val);
+			return (iterator(begin() + diff));
+
+			template <class InputIterator>
+    	void insert (iterator position,
+					typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type first,
+					InputIterator last)
+		{
+			difference_type diff = position - begin();
+			size_type 		size = 0;
+
+			for (InputIterator it = first; it != last; it++)
+				size++;
+			
+			this->resize(this->_size + size);
+
+			iterator = end = end();
+			position = begin() + diff;
+			iterator last = begin() + this->_size - size;
+			
+			while (last != position)
+				*--end = *--last;
+			while (size-- > 0)
+				*position++ = *first++;
+
+				
+
+	*/
 
 	template <class T1, class T2>
 	pair<T1,T2> make_pair (T1 x, T2 y)

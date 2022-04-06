@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2022/04/06 13:54:40 by bditte           ###   ########.fr       */
+/*   Updated: 2022/04/06 16:52:05 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -349,10 +349,7 @@ namespace ft
 				return ;
 			this->_allocator.destroy(&this->_array[this->_size - 1]);
 			this->_size--;
-		}
-
-
-		iterator			insert(iterator position, const value_type& val)
+		}iterator			insert(iterator position, const value_type& val)
 		{
 			difference_type		diff = position - begin();
 
@@ -368,12 +365,20 @@ namespace ft
 
 			iterator end = this->end();
 			position = begin() + diff;
-			iterator last = begin() + (this->_size - n);
+			iterator last_val = begin() + (this->_size - n);
 			
-			while (last != position)
-				*--end = *--last;
+			while (last_val != position)
+			{
+				--end;
+				this->_allocator.destroy(end.base());
+				this->_allocator.construct(end.base(), *--last_val);
+			}
 			while (n-- > 0)
-				*position++ = val;
+			{
+				this->_allocator.destroy(position.base());
+				this->_allocator.construct(position.base(), val);
+				position++;
+			}
 		}
 		
 		template <class InputIterator>
@@ -386,7 +391,6 @@ namespace ft
 
 			for (InputIterator it = first; it != last; it++)
 				size++;
-			
 			this->resize(this->_size + size);
 
 			iterator end = this->end();
@@ -394,10 +398,21 @@ namespace ft
 			iterator last_val = begin() + (this->_size - size);
 			
 			while (last_val != position)
-				*--end = *--last_val;
-			while (size-- > 0)
-				*position++ = *first++;
+			{
+				--end;
+				this->_allocator.destroy(end.base());
+				this->_allocator.construct(end.base(), *--last_val);
+			}
+			//	this->_allocator.construct((--end).base(), *--last_val);
+			while (first != last)
+			{
+				this->_allocator.destroy(position.base());
+				this->_allocator.construct(position.base(), *first++);
+				position++;
+			}
+			//	*position++ = *first++;
 		}
+		
 		
 		iterator 			erase(iterator position)
 		{
