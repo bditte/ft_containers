@@ -6,7 +6,7 @@
 /*   By: bditte <bditte@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 10:58:17 by bditte            #+#    #+#             */
-/*   Updated: 2022/04/06 16:52:05 by bditte           ###   ########.fr       */
+/*   Updated: 2022/04/07 11:33:04 by bditte           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -359,9 +359,11 @@ namespace ft
 		
 		void				insert(iterator position, size_type n, const value_type& val)
 		{
+			if (n == 0)
+				return ;
 			difference_type diff = position - begin();
 
-			this->resize(this->_size + n);
+			this->resize(this->_size + n, val);
 
 			iterator end = this->end();
 			position = begin() + diff;
@@ -391,7 +393,7 @@ namespace ft
 
 			for (InputIterator it = first; it != last; it++)
 				size++;
-			this->resize(this->_size + size);
+			this->resize(this->_size + size, *first);
 
 			iterator end = this->end();
 			position = begin() + diff;
@@ -403,14 +405,12 @@ namespace ft
 				this->_allocator.destroy(end.base());
 				this->_allocator.construct(end.base(), *--last_val);
 			}
-			//	this->_allocator.construct((--end).base(), *--last_val);
 			while (first != last)
 			{
 				this->_allocator.destroy(position.base());
 				this->_allocator.construct(position.base(), *first++);
 				position++;
 			}
-			//	*position++ = *first++;
 		}
 		
 		

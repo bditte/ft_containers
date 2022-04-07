@@ -45,10 +45,12 @@ FLAGS =			-Wall -Werror -Wextra -std=c++98
 
 
 
-all:			$(NAME) #std $(BONUS)
+all:			$(NAME) std 
 
 std:			clean $(OBJS)
-				$(CC)  $(HEADERS) $(SRCS) -D STD=1 -o $(STD_NAME) $(LIBS) 
+				$(CC)  $(HEADERS) $(SRCS) -D STD=1 -o $(STD_NAME) $(LIBS)
+				
+ft: 			${NAME}
 
 $(NAME) :		$(OBJS)
 			$(CC)  $(HEADERS) $(SRCS) -o $(NAME) $(LIBS) 

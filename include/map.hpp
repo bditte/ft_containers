@@ -5,7 +5,7 @@
 # include "utils/utils.hpp"
 # include "utils/iterator.hpp"
 
-# define MAX_SIZE  node_allocator().max_size() / (sizeof(node_type))
+# define MAX_SIZE  node_allocator().max_size() - 2
 
 namespace ft
 {
